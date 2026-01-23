@@ -65,12 +65,13 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
+    // Server-side environment variables (secret, client-side not visible)
     const baseUrl = process.env.NEXT_PUBLIC_MAGENTO_URL;
     const token = process.env.INTEGRATION_API_TOKEN;
 
     if (!baseUrl || !token) {
       throw new Error(
-        "Environment variables NEXT_PUBLIC_MAGENTO_URL or INTEGRATION_API_TOKEN missing"
+        "Environment variables MAGENTO_URL or MAGENTO_API_TOKEN missing"
       );
     }
 
