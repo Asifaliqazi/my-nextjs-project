@@ -4555,6 +4555,324 @@
 
 
 
+// "use client";
+
+// import { useState, useEffect } from "react";
+// import { useCart } from "@/context/CartContext";
+// import { useRouter } from "next/navigation";
+
+// /* ================= TYPES ================= */
+// type Totals = {
+//   subtotal: number;
+//   shipping_amount?: number;
+//   tax_amount?: number;
+//   grand_total: number;
+// };
+
+// /* ================= REGEX ================= */
+// const nameRegex = /^[A-Za-z ]+$/;
+// const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// const streetRegex = /^[A-Za-z0-9\s,\/-]+$/;
+// const zipRegex = /^[0-9]+$/;
+// const phoneRegex = /^[0-9]{10,15}$/;
+
+// export default function CheckoutPage() {
+//   const { cartId, clearCart } = useCart();
+//   const router = useRouter();
+
+//   /* ---------- SHIPPING FORM ---------- */
+//   const [form, setForm] = useState({
+//     email: "",
+//     firstname: "",
+//     lastname: "",
+//     street: "",
+//     city: "",
+//     region: "",
+//     postcode: "",
+//     telephone: "",
+//     country_id: "IN",
+//   });
+
+//   /* ---------- BILLING FORM ---------- */
+//   const [billingForm, setBillingForm] = useState({
+//     firstname: "",
+//     lastname: "",
+//     street: "",
+//     city: "",
+//     region: "",
+//     postcode: "",
+//     telephone: "",
+//     country_id: "IN",
+//   });
+
+//   const [useSameBilling, setUseSameBilling] = useState(true);
+//   const [shippingErrors, setShippingErrors] = useState<Record<string, string>>({});
+//   const [billingErrors, setBillingErrors] = useState<Record<string, string>>({});
+//   const [totals, setTotals] = useState<Totals | null>(null);
+//   const [paymentMethod, setPaymentMethod] = useState<"checkmo" | "stripe_payments">("checkmo");
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState("");
+
+//   /* ================= HANDLERS ================= */
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setForm({ ...form, [e.target.name]: e.target.value });
+//     setShippingErrors({ ...shippingErrors, [e.target.name]: "" });
+//   };
+
+//   const handleBillingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setBillingForm({ ...billingForm, [e.target.name]: e.target.value });
+//     setBillingErrors({ ...billingErrors, [e.target.name]: "" });
+//   };
+
+//   /* ================= VALIDATION ================= */
+//   const validateForm = (isBilling = false) => {
+//     const targetForm = isBilling ? billingForm : form;
+//     const newErrors: Record<string, string> = {};
+
+//     if (!isBilling) {
+//       if (!targetForm.email) newErrors.email = "Email is required";
+//       else if (!emailRegex.test(targetForm.email)) newErrors.email = "Invalid email";
+//     }
+
+//     if (!targetForm.firstname) newErrors.firstname = "First name required";
+//     else if (!nameRegex.test(targetForm.firstname)) newErrors.firstname = "Invalid name";
+
+//     if (!targetForm.lastname) newErrors.lastname = "Last name required";
+//     else if (!nameRegex.test(targetForm.lastname)) newErrors.lastname = "Invalid last name";
+
+//     if (!targetForm.street) newErrors.street = "Street required";
+//     else if (!streetRegex.test(targetForm.street)) newErrors.street = "Invalid street";
+
+//     if (!targetForm.city) newErrors.city = "City required";
+//     else if (!nameRegex.test(targetForm.city)) newErrors.city = "Invalid city";
+
+//     if (!targetForm.region) newErrors.region = "State required";
+//     else if (!nameRegex.test(targetForm.region)) newErrors.region = "Invalid state";
+
+//     if (!targetForm.postcode) newErrors.postcode = "Zip required";
+//     else if (!zipRegex.test(targetForm.postcode)) newErrors.postcode = "Invalid zip";
+
+//     if (!targetForm.telephone) newErrors.telephone = "Phone required";
+//     else if (!phoneRegex.test(targetForm.telephone)) newErrors.telephone = "Invalid phone";
+
+//     if (isBilling) setBillingErrors(newErrors);
+//     else setShippingErrors(newErrors);
+
+//     return Object.keys(newErrors).length === 0;
+//   };
+
+//   /* ================= FETCH TOTALS ON LOAD ================= */
+//   useEffect(() => {
+//     if (!cartId) return;
+
+//     const fetchTotals = async () => {
+//       try {
+//         const res = await fetch("/api/magento/shipping", {
+//           method: "POST",
+//           headers: { "Content-Type": "application/json" },
+//           body: JSON.stringify({
+//             cartId: String(cartId).replace(/"/g, ""),
+//             addressInformation: {
+//               shipping_address: { ...form, street: [form.street], save_in_address_book: 0 },
+//               billing_address: { ...form, street: [form.street] },
+//               shipping_method_code: "flatrate",
+//               shipping_carrier_code: "flatrate",
+//             },
+//           }),
+//         });
+//         const data = await res.json();
+//         if (res.ok) setTotals(data.totals);
+//       } catch (err) {
+//         console.error("Failed to fetch totals:", err);
+//       }
+//     };
+
+//     fetchTotals();
+//   }, [cartId]);
+
+//   /* ================= SAVE SHIPPING ================= */
+//   const handleSubmitShipping = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     if (!cartId) return alert("Cart not initialized");
+//     if (!validateForm()) return;
+
+//     setLoading(true);
+//     setError("");
+
+//     try {
+//       const res = await fetch("/api/magento/shipping", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({
+//           cartId: String(cartId).replace(/"/g, ""),
+//           addressInformation: {
+//             shipping_address: { ...form, street: [form.street], save_in_address_book: 0 },
+//             billing_address: { ...form, street: [form.street] },
+//             shipping_method_code: "flatrate",
+//             shipping_carrier_code: "flatrate",
+//           },
+//         }),
+//       });
+
+//       const data = await res.json();
+//       if (!res.ok) throw new Error(data.message || "Shipping failed");
+
+//       setTotals(data.totals);
+      
+//     } catch (err: any) {
+//       setError(err.message);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   /* ================= PLACE ORDER ================= */
+//   const handlePlaceOrder = async () => {
+//     if (!cartId || !totals) return;
+//     if (!useSameBilling && !validateForm(true)) return;
+
+//     setLoading(true);
+//     setError("");
+
+//     try {
+//       const res = await fetch("/api/magento/place-order", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({
+//           cartId: String(cartId).replace(/"/g, ""),
+//           email: form.email,
+//           paymentMethod: { method: paymentMethod },
+//           billingAddress: useSameBilling
+//             ? { ...form, street: [form.street] }
+//             : { ...billingForm, street: [billingForm.street] },
+//         }),
+//       });
+
+//       const data = await res.json();
+//       if (!res.ok) throw new Error(data.message || "Order failed");
+
+//       // alert("✅ Order placed successfully");
+//       clearCart();
+//       router.push(`/thank-you?order=${data.orderId || ""}`);
+//     } catch (err: any) {
+//       setError(err.message);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   /* ================= UI ================= */
+//   return (
+//     <div className="min-h-screen bg-gray-100 p-6">
+//       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+//         {/* SHIPPING */}
+//         <div className="bg-white p-6 rounded shadow">
+//           <h2 className="text-lg font-semibold border-b pb-2 mb-4">Shipping Address</h2>
+//           <form onSubmit={handleSubmitShipping} className="space-y-4">
+//             <Input label="Email" name="email" form={form} errors={shippingErrors} onChange={handleChange} />
+//             <div className="grid grid-cols-2 gap-4">
+//               <Input label="First Name" name="firstname" form={form} errors={shippingErrors} onChange={handleChange} />
+//               <Input label="Last Name" name="lastname" form={form} errors={shippingErrors} onChange={handleChange} />
+//             </div>
+//             <Input label="Street" name="street" form={form} errors={shippingErrors} onChange={handleChange} />
+//             <Input label="City" name="city" form={form} errors={shippingErrors} onChange={handleChange} />
+//             <Input label="State" name="region" form={form} errors={shippingErrors} onChange={handleChange} />
+//             <Input label="Zip" name="postcode" form={form} errors={shippingErrors} onChange={handleChange} />
+//             <Input label="Phone" name="telephone" form={form} errors={shippingErrors} onChange={handleChange} />
+//             <button className="w-full bg-black text-white py-2 rounded">{loading ? "Saving..." : "Next"}</button>
+//           </form>
+//         </div>
+
+//         {/* PAYMENT + BILLING */}
+//         <div className="bg-white p-6 rounded shadow space-y-4">
+//           <h2 className="text-lg font-semibold border-b pb-2">Payment Method</h2>
+//           <label className="flex items-center gap-2">
+//             <input type="radio" checked={paymentMethod === "checkmo"} onChange={() => setPaymentMethod("checkmo")} />
+//             Cash on Delivery
+//           </label>
+//           <label className="flex items-center gap-2">
+//             <input type="radio" checked={paymentMethod === "stripe_payments"} onChange={() => setPaymentMethod("stripe_payments")} />
+//             Credit / Debit Card
+//           </label>
+
+//           {/* Card fields only show if stripe_payments is selected */}
+//           {paymentMethod === "stripe_payments" && (
+//             <div className="grid grid-cols-2 gap-3 mt-2">
+//               <input placeholder="Card Number" className="border p-2 rounded col-span-2" />
+//               <input placeholder="MM / YY" className="border p-2 rounded" />
+//               <input placeholder="CVV" className="border p-2 rounded" />
+//             </div>
+//           )}
+
+//           <div className="border rounded p-4 bg-gray-50 space-y-3 mt-4">
+//             <label className="flex items-center gap-2 text-sm">
+//               <input type="checkbox" checked={useSameBilling} onChange={() => setUseSameBilling(!useSameBilling)} />
+//               My billing and shipping address are the same
+//             </label>
+//             {!useSameBilling && (
+//               <div className="space-y-3 pt-2">
+//                 <Input label="First Name" name="firstname" form={billingForm} errors={billingErrors} onChange={handleBillingChange} />
+//                 <Input label="Last Name" name="lastname" form={billingForm} errors={billingErrors} onChange={handleBillingChange} />
+//                 <Input label="Street" name="street" form={billingForm} errors={billingErrors} onChange={handleBillingChange} />
+//                 <Input label="City" name="city" form={billingForm} errors={billingErrors} onChange={handleBillingChange} />
+//                 <Input label="State" name="region" form={billingForm} errors={billingErrors} onChange={handleBillingChange} />
+//                 <Input label="Zip" name="postcode" form={billingForm} errors={billingErrors} onChange={handleBillingChange} />
+//                 <Input label="Phone" name="telephone" form={billingForm} errors={billingErrors} onChange={handleBillingChange} />
+//               </div>
+//             )}
+//           </div>
+
+//           <button onClick={handlePlaceOrder} disabled={!totals || loading} className="w-full bg-red-600 text-white py-2 rounded disabled:opacity-50 mt-4">
+//             {loading ? "Placing..." : "Place Order"}
+//           </button>
+//           {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
+//         </div>
+
+//         {/* SUMMARY */}
+//         <div className="bg-white p-6 rounded shadow">
+//           <h2 className="text-lg font-semibold border-b pb-2 mb-4">Order Summary</h2>
+//           {totals ? (
+//             <>
+//               <Row label="Subtotal" value={totals.subtotal} />
+//               <Row label="Shipping" value={totals.shipping_amount || 0} />
+//               <Row label="Tax" value={totals.tax_amount || 0} />
+//               <div className="flex justify-between font-bold border-t pt-2 mt-2">
+//                 <span>Order Total</span>
+//                 <span>₹{totals.grand_total}</span>
+//               </div>
+//             </>
+//           ) : (
+//             <p className="text-gray-500 text-sm">Loading order summary...</p>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// /* ================= SMALL COMPONENTS ================= */
+// const Input = ({ label, name, form, errors = {}, onChange }: any) => (
+//   <div>
+//     <label className="text-sm font-medium block mb-1">{label} <span className="text-red-500">*</span></label>
+//     <input
+//       name={name}
+//       value={form[name] || ""}
+//       onChange={onChange}
+//       className={`w-full border rounded px-3 py-2 ${errors[name] ? "border-red-500" : "border-gray-300"}`}
+//     />
+//     {errors[name] && <p className="text-red-500 text-xs mt-1">{errors[name]}</p>}
+//   </div>
+// );
+
+// const Row = ({ label, value }: { label: string; value: number }) => (
+//   <div className="flex justify-between text-sm mb-1">
+//     <span>{label}</span>
+//     <span>₹{value}</span>
+//   </div>
+// );
+
+
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -4609,19 +4927,22 @@ export default function CheckoutPage() {
   const [shippingErrors, setShippingErrors] = useState<Record<string, string>>({});
   const [billingErrors, setBillingErrors] = useState<Record<string, string>>({});
   const [totals, setTotals] = useState<Totals | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<"checkmo" | "stripe_payments">("checkmo");
+  const [paymentMethod, setPaymentMethod] =
+    useState<"checkmo" | "stripe_payments">("checkmo");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   /* ================= HANDLERS ================= */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setShippingErrors({ ...shippingErrors, [e.target.name]: "" });
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+    setShippingErrors(prev => ({ ...prev, [name]: "" }));
   };
 
   const handleBillingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setBillingForm({ ...billingForm, [e.target.name]: e.target.value });
-    setBillingErrors({ ...billingErrors, [e.target.name]: "" });
+    const { name, value } = e.target;
+    setBillingForm(prev => ({ ...prev, [name]: value }));
+    setBillingErrors(prev => ({ ...prev, [name]: "" }));
   };
 
   /* ================= VALIDATION ================= */
@@ -4629,31 +4950,47 @@ export default function CheckoutPage() {
     const targetForm = isBilling ? billingForm : form;
     const newErrors: Record<string, string> = {};
 
+    // ✅ FIXED: email sirf shipping form se check hoga
     if (!isBilling) {
-      if (!targetForm.email) newErrors.email = "Email is required";
-      else if (!emailRegex.test(targetForm.email)) newErrors.email = "Invalid email";
+      if (!form.email) newErrors.email = "Email is required";
+      else if (!emailRegex.test(form.email))
+        newErrors.email = "Invalid email";
     }
 
-    if (!targetForm.firstname) newErrors.firstname = "First name required";
-    else if (!nameRegex.test(targetForm.firstname)) newErrors.firstname = "Invalid name";
+    if (!targetForm.firstname)
+      newErrors.firstname = "First name required";
+    else if (!nameRegex.test(targetForm.firstname))
+      newErrors.firstname = "Invalid name";
 
-    if (!targetForm.lastname) newErrors.lastname = "Last name required";
-    else if (!nameRegex.test(targetForm.lastname)) newErrors.lastname = "Invalid last name";
+    if (!targetForm.lastname)
+      newErrors.lastname = "Last name required";
+    else if (!nameRegex.test(targetForm.lastname))
+      newErrors.lastname = "Invalid last name";
 
-    if (!targetForm.street) newErrors.street = "Street required";
-    else if (!streetRegex.test(targetForm.street)) newErrors.street = "Invalid street";
+    if (!targetForm.street)
+      newErrors.street = "Street required";
+    else if (!streetRegex.test(targetForm.street))
+      newErrors.street = "Invalid street";
 
-    if (!targetForm.city) newErrors.city = "City required";
-    else if (!nameRegex.test(targetForm.city)) newErrors.city = "Invalid city";
+    if (!targetForm.city)
+      newErrors.city = "City required";
+    else if (!nameRegex.test(targetForm.city))
+      newErrors.city = "Invalid city";
 
-    if (!targetForm.region) newErrors.region = "State required";
-    else if (!nameRegex.test(targetForm.region)) newErrors.region = "Invalid state";
+    if (!targetForm.region)
+      newErrors.region = "State required";
+    else if (!nameRegex.test(targetForm.region))
+      newErrors.region = "Invalid state";
 
-    if (!targetForm.postcode) newErrors.postcode = "Zip required";
-    else if (!zipRegex.test(targetForm.postcode)) newErrors.postcode = "Invalid zip";
+    if (!targetForm.postcode)
+      newErrors.postcode = "Zip required";
+    else if (!zipRegex.test(targetForm.postcode))
+      newErrors.postcode = "Invalid zip";
 
-    if (!targetForm.telephone) newErrors.telephone = "Phone required";
-    else if (!phoneRegex.test(targetForm.telephone)) newErrors.telephone = "Invalid phone";
+    if (!targetForm.telephone)
+      newErrors.telephone = "Phone required";
+    else if (!phoneRegex.test(targetForm.telephone))
+      newErrors.telephone = "Invalid phone";
 
     if (isBilling) setBillingErrors(newErrors);
     else setShippingErrors(newErrors);
@@ -4661,7 +4998,7 @@ export default function CheckoutPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  /* ================= FETCH TOTALS ON LOAD ================= */
+  /* ================= FETCH TOTALS ================= */
   useEffect(() => {
     if (!cartId) return;
 
@@ -4673,17 +5010,25 @@ export default function CheckoutPage() {
           body: JSON.stringify({
             cartId: String(cartId).replace(/"/g, ""),
             addressInformation: {
-              shipping_address: { ...form, street: [form.street], save_in_address_book: 0 },
-              billing_address: { ...form, street: [form.street] },
+              shipping_address: {
+                ...form,
+                street: [form.street],
+                save_in_address_book: 0,
+              },
+              billing_address: {
+                ...form,
+                street: [form.street],
+              },
               shipping_method_code: "flatrate",
               shipping_carrier_code: "flatrate",
             },
           }),
         });
+
         const data = await res.json();
         if (res.ok) setTotals(data.totals);
       } catch (err) {
-        console.error("Failed to fetch totals:", err);
+        console.error(err);
       }
     };
 
@@ -4693,7 +5038,7 @@ export default function CheckoutPage() {
   /* ================= SAVE SHIPPING ================= */
   const handleSubmitShipping = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!cartId) return alert("Cart not initialized");
+    if (!cartId) return;
     if (!validateForm()) return;
 
     setLoading(true);
@@ -4706,8 +5051,15 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           cartId: String(cartId).replace(/"/g, ""),
           addressInformation: {
-            shipping_address: { ...form, street: [form.street], save_in_address_book: 0 },
-            billing_address: { ...form, street: [form.street] },
+            shipping_address: {
+              ...form,
+              street: [form.street],
+              save_in_address_book: 0,
+            },
+            billing_address: {
+              ...form,
+              street: [form.street],
+            },
             shipping_method_code: "flatrate",
             shipping_carrier_code: "flatrate",
           },
@@ -4715,10 +5067,8 @@ export default function CheckoutPage() {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Shipping failed");
-
+      if (!res.ok) throw new Error(data.message);
       setTotals(data.totals);
-      
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -4749,9 +5099,8 @@ export default function CheckoutPage() {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Order failed");
+      if (!res.ok) throw new Error(data.message);
 
-      // alert("✅ Order placed successfully");
       clearCart();
       router.push(`/thank-you?order=${data.orderId || ""}`);
     } catch (err: any) {
@@ -4767,50 +5116,74 @@ export default function CheckoutPage() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* SHIPPING */}
         <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-lg font-semibold border-b pb-2 mb-4">Shipping Address</h2>
+          <h2 className="text-lg font-semibold border-b pb-2 mb-4">
+            Shipping Address
+          </h2>
+
           <form onSubmit={handleSubmitShipping} className="space-y-4">
             <Input label="Email" name="email" form={form} errors={shippingErrors} onChange={handleChange} />
+
             <div className="grid grid-cols-2 gap-4">
               <Input label="First Name" name="firstname" form={form} errors={shippingErrors} onChange={handleChange} />
               <Input label="Last Name" name="lastname" form={form} errors={shippingErrors} onChange={handleChange} />
             </div>
+
             <Input label="Street" name="street" form={form} errors={shippingErrors} onChange={handleChange} />
             <Input label="City" name="city" form={form} errors={shippingErrors} onChange={handleChange} />
             <Input label="State" name="region" form={form} errors={shippingErrors} onChange={handleChange} />
             <Input label="Zip" name="postcode" form={form} errors={shippingErrors} onChange={handleChange} />
             <Input label="Phone" name="telephone" form={form} errors={shippingErrors} onChange={handleChange} />
-            <button className="w-full bg-black text-white py-2 rounded">{loading ? "Saving..." : "Next"}</button>
+
+            <button className="w-full bg-black text-white py-2 rounded">
+              {loading ? "Saving..." : "Next"}
+            </button>
           </form>
         </div>
 
         {/* PAYMENT + BILLING */}
         <div className="bg-white p-6 rounded shadow space-y-4">
-          <h2 className="text-lg font-semibold border-b pb-2">Payment Method</h2>
+          <h2 className="text-lg font-semibold border-b pb-2">
+            Payment Method
+          </h2>
+
           <label className="flex items-center gap-2">
-            <input type="radio" checked={paymentMethod === "checkmo"} onChange={() => setPaymentMethod("checkmo")} />
+            <input
+              type="radio"
+              checked={paymentMethod === "checkmo"}
+              onChange={() => setPaymentMethod("checkmo")}
+            />
             Cash on Delivery
           </label>
+
           <label className="flex items-center gap-2">
-            <input type="radio" checked={paymentMethod === "stripe_payments"} onChange={() => setPaymentMethod("stripe_payments")} />
+            <input
+              type="radio"
+              checked={paymentMethod === "stripe_payments"}
+              onChange={() => setPaymentMethod("stripe_payments")}
+            />
             Credit / Debit Card
           </label>
 
-          {/* Card fields only show if stripe_payments is selected */}
           {paymentMethod === "stripe_payments" && (
-            <div className="grid grid-cols-2 gap-3 mt-2">
-              <input placeholder="Card Number" className="border p-2 rounded col-span-2" />
-              <input placeholder="MM / YY" className="border p-2 rounded" />
-              <input placeholder="CVV" className="border p-2 rounded" />
+            <div className="grid grid-cols-2 gap-3">
+              <input className="border p-2 rounded col-span-2" placeholder="Card Number" />
+              <input className="border p-2 rounded" placeholder="MM / YY" />
+              <input className="border p-2 rounded" placeholder="CVV" />
             </div>
           )}
 
-          <div className="border rounded p-4 bg-gray-50 space-y-3 mt-4">
+          <div className="border rounded p-4 bg-gray-50 space-y-3">
             <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={useSameBilling} onChange={() => setUseSameBilling(!useSameBilling)} />
+              <input
+                type="checkbox"
+                checked={useSameBilling}
+                onChange={() => setUseSameBilling(!useSameBilling)}
+              />
               My billing and shipping address are the same
             </label>
+
             {!useSameBilling && (
-              <div className="space-y-3 pt-2">
+              <div className="space-y-3">
                 <Input label="First Name" name="firstname" form={billingForm} errors={billingErrors} onChange={handleBillingChange} />
                 <Input label="Last Name" name="lastname" form={billingForm} errors={billingErrors} onChange={handleBillingChange} />
                 <Input label="Street" name="street" form={billingForm} errors={billingErrors} onChange={handleBillingChange} />
@@ -4822,15 +5195,23 @@ export default function CheckoutPage() {
             )}
           </div>
 
-          <button onClick={handlePlaceOrder} disabled={!totals || loading} className="w-full bg-red-600 text-white py-2 rounded disabled:opacity-50 mt-4">
+          <button
+            onClick={handlePlaceOrder}
+            disabled={!totals || loading}
+            className="w-full bg-red-600 text-white py-2 rounded disabled:opacity-50"
+          >
             {loading ? "Placing..." : "Place Order"}
           </button>
-          {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
+
+          {error && <p className="text-red-600 text-sm">{error}</p>}
         </div>
 
         {/* SUMMARY */}
         <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-lg font-semibold border-b pb-2 mb-4">Order Summary</h2>
+          <h2 className="text-lg font-semibold border-b pb-2 mb-4">
+            Order Summary
+          </h2>
+
           {totals ? (
             <>
               <Row label="Subtotal" value={totals.subtotal} />
@@ -4842,7 +5223,9 @@ export default function CheckoutPage() {
               </div>
             </>
           ) : (
-            <p className="text-gray-500 text-sm">Loading order summary...</p>
+            <p className="text-gray-500 text-sm">
+              Loading order summary...
+            </p>
           )}
         </div>
       </div>
@@ -4853,14 +5236,20 @@ export default function CheckoutPage() {
 /* ================= SMALL COMPONENTS ================= */
 const Input = ({ label, name, form, errors = {}, onChange }: any) => (
   <div>
-    <label className="text-sm font-medium block mb-1">{label} <span className="text-red-500">*</span></label>
+    <label className="text-sm font-medium block mb-1">
+      {label} <span className="text-red-500">*</span>
+    </label>
     <input
       name={name}
       value={form[name] || ""}
       onChange={onChange}
-      className={`w-full border rounded px-3 py-2 ${errors[name] ? "border-red-500" : "border-gray-300"}`}
+      className={`w-full border rounded px-3 py-2 ${
+        errors[name] ? "border-red-500" : "border-gray-300"
+      }`}
     />
-    {errors[name] && <p className="text-red-500 text-xs mt-1">{errors[name]}</p>}
+    {errors[name] && (
+      <p className="text-red-500 text-xs mt-1">{errors[name]}</p>
+    )}
   </div>
 );
 
