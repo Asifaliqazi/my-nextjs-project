@@ -252,17 +252,23 @@
 // }
 
 
-// app/product/page.tsx
-"use client"; // MUST be client
-
 import ProductClient from "./ProductClient";
-
-// Tell Next.js this page should always be client-side rendered
-export const dynamic = "force-dynamic";
+import { Suspense } from "react";
 
 export default function ProductPage() {
-  return <ProductClient />;
+  return (
+    <div className="p-4 max-w-5xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6">Product Page</h1>
+
+      {/* Wrap client component in Suspense */}
+      <Suspense fallback={<p>Loading product...</p>}>
+        <ProductClient />
+      </Suspense>
+    </div>
+  );
 }
+
+
 
 
 
