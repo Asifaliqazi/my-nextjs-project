@@ -251,11 +251,18 @@
 //   );
 // }
 
-"use client"; // MUST be client component
+"use client"; // must be first line
 
+import { Suspense } from "react";
 import ProductClient from "./ProductClient";
 
 export default function ProductPage() {
-  return <ProductClient />;
+  return (
+    <Suspense fallback={<div>Loading product...</div>}>
+      <ProductClient />
+    </Suspense>
+  );
 }
+
+
 
