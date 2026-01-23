@@ -66,8 +66,8 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     // Server-side environment variables (secret, client-side not visible)
-    const baseUrl = process.env.NEXT_PUBLIC_MAGENTO_URL;
-    const token = process.env.INTEGRATION_API_TOKEN;
+    const baseUrl = process.env.MAGENTO_URL;
+    const token = process.env.MAGENTO_API_TOKEN;
 
     if (!baseUrl || !token) {
       throw new Error(
