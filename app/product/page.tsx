@@ -251,17 +251,19 @@
 //   );
 // }
 
+
 // app/product/page.tsx
-"use client";
+"use client"; // MUST be client
 
 import ProductClient from "./ProductClient";
 
-// ✅ force this page to always render dynamically (CSR)
+// Tell Next.js this page should always be client-side rendered
 export const dynamic = "force-dynamic";
 
 export default function ProductPage() {
   return <ProductClient />;
 }
+
 
 
 
