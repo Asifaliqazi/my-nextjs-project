@@ -251,18 +251,18 @@
 //   );
 // }
 
-"use client"; // must be first line
+// app/product/page.tsx
+"use client";
 
-import { Suspense } from "react";
 import ProductClient from "./ProductClient";
 
+// ✅ force this page to always render dynamically (CSR)
+export const dynamic = "force-dynamic";
+
 export default function ProductPage() {
-  return (
-    <Suspense fallback={<div>Loading product...</div>}>
-      <ProductClient />
-    </Suspense>
-  );
+  return <ProductClient />;
 }
+
 
 
 
