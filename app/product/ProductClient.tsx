@@ -16,13 +16,7 @@ export default function ProductClient() {
   const sku = searchParams.get("sku");
   const editMode = searchParams.get("edit") === "true";
 
-  const {
-    cart,
-    addToCart,
-    updateCartItem,
-    refreshCart,
-    openDrawer,
-  } = useCart();
+  const { cart, addToCart, updateCartItem, refreshCart, openDrawer } = useCart();
 
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [qty, setQty] = useState(1);
@@ -33,9 +27,7 @@ export default function ProductClient() {
     text: string;
   } | null>(null);
 
-  const cartItem = product
-    ? cart.find((item) => item.sku === product.sku)
-    : null;
+  const cartItem = product ? cart.find((item) => item.sku === product.sku) : null;
 
   /* ================= FETCH PRODUCT ================= */
   useEffect(() => {
