@@ -231,22 +231,33 @@ export async function GET() {
     const res = await fetch(
       "https://test.flipflops.cc/rest/V1/categories",
       {
+        method: "GET",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          "User-Agent": "Next.js (Vercel)",
+        },
         cache: "no-store",
       }
     );
 
     if (!res.ok) {
+      const text = await res.text();
+      console.error("Magento Error:", res.status, text);
+
       return NextResponse.json(
-        { error: "Magento API failed", status: res.status },
+        { error: "Magento API failed", details: text },
         { status: res.status }
       );
     }
 
     const data = await res.json();
     return NextResponse.json(data);
-  } catch (error) {
+
+  } catch (err: any) {
+    console.error("Fetch crashed:", err);
     return NextResponse.json(
-      { error: "Server error" },
+      { error: err.message },
       { status: 500 }
     );
   }
