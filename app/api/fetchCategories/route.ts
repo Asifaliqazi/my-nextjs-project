@@ -224,11 +224,47 @@
 // }
 
 
+// import { NextResponse } from "next/server";
+
+// export async function GET() {
+//   try {
+//     // Backend me URL + token
+//     const MAGENTO_URL = process.env.MAGENTO_BASE_URL;
+//     const TOKEN = process.env.MAGENTO_TOKEN;
+
+//     if (!MAGENTO_URL || !TOKEN) {
+//       return NextResponse.json({ error: "Missing env vars" }, { status: 500 });
+//     }
+
+//     const res = await fetch(`${MAGENTO_URL}/rest/V1/categories`, {
+//       headers: {
+//         Authorization: `Bearer ${TOKEN}`,
+//       },
+//       cache: "no-store",
+//     });
+
+//     if (!res.ok) {
+//       return NextResponse.json(
+//         { error: "Magento API failed", status: res.status },
+//         { status: res.status }
+//       );
+//     }
+
+//     const data = await res.json();
+//     return NextResponse.json(data);
+
+//   } catch (err) {
+//     console.error("FETCH ERROR:", err);
+//     return NextResponse.json({ error: "Server error" }, { status: 500 });
+//   }
+// }
+
+
+
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    // Backend me URL + token
     const MAGENTO_URL = process.env.MAGENTO_BASE_URL;
     const TOKEN = process.env.MAGENTO_TOKEN;
 
@@ -237,11 +273,11 @@ export async function GET() {
     }
 
     const res = await fetch(`${MAGENTO_URL}/rest/V1/categories`, {
-      headers: {
-        Authorization: `Bearer ${TOKEN}`,
-      },
+      headers: { Authorization: `Bearer ${TOKEN}` },
       cache: "no-store",
     });
+
+    console.log("STATUS:", res.status);
 
     if (!res.ok) {
       return NextResponse.json(
@@ -251,6 +287,8 @@ export async function GET() {
     }
 
     const data = await res.json();
+    console.log("CATEGORIES:", data);
+
     return NextResponse.json(data);
 
   } catch (err) {
