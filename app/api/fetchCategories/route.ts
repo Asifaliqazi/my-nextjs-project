@@ -186,113 +186,39 @@
 
 
 
-// import { NextResponse } from "next/server";
-
-// export async function GET() {
-//   try {
-//     const apiUrl = process.env.API_BASE_URL;
-//     const token = process.env.INTEGRATION_API_TOKEN;
-//     console.log("API URL:", process.env.API_BASE_URL);
-//     console.log("Token length:", process.env.INTEGRATION_API_TOKEN?.length);
-
-//     if (!apiUrl || !token) {
-//       return NextResponse.json({ error: "Env vars missing" }, { status: 500 });
-//     }
-
-//     const res = await fetch(apiUrl, {
-//       method: "GET",
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//         "Content-Type": "application/json",
-//       },
-//       cache: "no-store",
-//     });
-
-//     if (!res.ok) {
-//       const text = await res.text();
-//       console.error("Magento response:", text);
-//       throw new Error(`HTTP error! status: ${res.status}`);
-//     }
-
-//     const data = await res.json();
-//     return NextResponse.json(data);
-
-//   } catch (err) {
-//     console.error("Server-side fetch failed:", err);
-//     return NextResponse.json({ error: "Failed to fetch categories" }, { status: 500 });
-//   }
-// }
-
-
-// import { NextResponse } from "next/server";
-
-// export async function GET() {
-//   try {
-//     // Backend me URL + token
-//     const MAGENTO_URL = process.env.MAGENTO_BASE_URL;
-//     const TOKEN = process.env.MAGENTO_TOKEN;
-
-//     if (!MAGENTO_URL || !TOKEN) {
-//       return NextResponse.json({ error: "Missing env vars" }, { status: 500 });
-//     }
-
-//     const res = await fetch(`${MAGENTO_URL}/rest/V1/categories`, {
-//       headers: {
-//         Authorization: `Bearer ${TOKEN}`,
-//       },
-//       cache: "no-store",
-//     });
-
-//     if (!res.ok) {
-//       return NextResponse.json(
-//         { error: "Magento API failed", status: res.status },
-//         { status: res.status }
-//       );
-//     }
-
-//     const data = await res.json();
-//     return NextResponse.json(data);
-
-//   } catch (err) {
-//     console.error("FETCH ERROR:", err);
-//     return NextResponse.json({ error: "Server error" }, { status: 500 });
-//   }
-// }
-
-
-
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const MAGENTO_URL = process.env.MAGENTO_BASE_URL;
-    const TOKEN = process.env.MAGENTO_TOKEN;
+    const apiUrl = process.env.API_BASE_URL;
+    const token = process.env.INTEGRATION_API_TOKEN;
+    console.log("API URL:", process.env.API_BASE_URL);
+    console.log("Token length:", process.env.INTEGRATION_API_TOKEN?.length);
 
-    if (!MAGENTO_URL || !TOKEN) {
-      return NextResponse.json({ error: "Missing env vars" }, { status: 500 });
+    if (!apiUrl || !token) {
+      return NextResponse.json({ error: "Env vars missing" }, { status: 500 });
     }
 
-    const res = await fetch(`${MAGENTO_URL}/rest/V1/categories`, {
-      headers: { Authorization: `Bearer ${TOKEN}` },
+    const res = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
       cache: "no-store",
     });
 
-    console.log("STATUS:", res.status);
-
     if (!res.ok) {
-      return NextResponse.json(
-        { error: "Magento API failed", status: res.status },
-        { status: res.status }
-      );
+      const text = await res.text();
+      console.error("Magento response:", text);
+      throw new Error(`HTTP error! status: ${res.status}`);
     }
 
     const data = await res.json();
-    console.log("CATEGORIES:", data);
-
     return NextResponse.json(data);
 
   } catch (err) {
-    console.error("FETCH ERROR:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    console.error("Server-side fetch failed:", err);
+    return NextResponse.json({ error: "Failed to fetch categories" }, { status: 500 });
   }
 }
