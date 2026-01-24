@@ -224,48 +224,24 @@
 // }
 
 
-// import React from "react";
-
-// export default async function CategoriesList(): Promise<void> {
-//   try {
-//     const res = await fetch("https://test.flipflops.cc/rest/V1/categories", {
-//       headers: {
-//         Authorization: `Bearer ${process.env.API_TOKEN}`,
-//       },
-//       cache: "no-store",
-//     });
-
-//     if (!res.ok) throw new Error(`Failed to fetch categories: ${res.status}`);
-
-//     const categories = await res.json();
-
-//     if (!categories || categories.length === 0) {
-//       console.log("CategoriesList: No categories found");
-//       return; // bas yaha return karo
-//     }
-
-//     console.log("CategoriesList: Categories fetched successfully", categories);
-
-//   } catch (error: any) {
-//     console.error("CategoriesList: Error loading categories", error);
-//   }
-// }
-
-
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const TOKEN = "b8p4vbo33cq0vdtwvhsdm6bbwg0dcekx"; // ⚠️ sirf test ke liye
+    // Backend me URL + token
+    const MAGENTO_URL = process.env.MAGENTO_BASE_URL;
+    const TOKEN = process.env.MAGENTO_TOKEN;
 
-    const res = await fetch("https://test.flipflops.cc/rest/V1/categories", {
+    if (!MAGENTO_URL || !TOKEN) {
+      return NextResponse.json({ error: "Missing env vars" }, { status: 500 });
+    }
+
+    const res = await fetch(`${MAGENTO_URL}/rest/V1/categories`, {
       headers: {
         Authorization: `Bearer ${TOKEN}`,
       },
       cache: "no-store",
     });
-
-    console.log("STATUS:", res.status);
 
     if (!res.ok) {
       return NextResponse.json(
@@ -275,9 +251,8 @@ export async function GET() {
     }
 
     const data = await res.json();
-    console.log("CATEGORIES:", data);
-
     return NextResponse.json(data);
+
   } catch (err) {
     console.error("FETCH ERROR:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
