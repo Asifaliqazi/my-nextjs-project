@@ -473,3 +473,92 @@ export async function GET() {
     );
   }
 }
+
+
+
+// import { NextResponse } from "next/server";
+
+// export async function GET() {
+//   try {
+//     console.log("📦 CATEGORY FETCH START");
+
+//     /* ===============================
+//        ENV CONFIG
+//     =============================== */
+
+//     const baseUrl = process.env.NEXT_PUBLIC_MAGENTO_URL;
+//     const BASIC_USER = process.env.BASIC_AUTH_USER;
+//     const BASIC_PASS = process.env.BASIC_AUTH_PASS;
+//     const MAGENTO_TOKEN = process.env.MAGENTO_TOKEN;
+
+//     if (!baseUrl || !BASIC_USER || !BASIC_PASS || !MAGENTO_TOKEN) {
+//       throw new Error("Missing ENV variables (URL / Auth / Token)");
+//     }
+
+//     /* ===============================
+//        URL
+//     =============================== */
+//     const url = `${baseUrl.replace(/\/$/, "")}/rest/V1/categories`;
+//     console.log("➡️ HITTING:", url);
+
+//     /* ===============================
+//        BASIC AUTH
+//     =============================== */
+//     const basicAuth = Buffer.from(
+//       `${BASIC_USER}:${BASIC_PASS}`
+//     ).toString("base64");
+
+//     /* ===============================
+//        FETCH
+//     =============================== */
+//     const res = await fetch(url, {
+//       method: "GET",
+//       headers: {
+//         // 🔐 Server Basic Auth
+//         Authorization: `Basic ${basicAuth}`,
+
+//         // 🔑 Magento Token
+//         "Authorization-Token": `Bearer ${MAGENTO_TOKEN}`,
+
+//         Accept: "application/json",
+//       },
+//       cache: "no-store",
+//     });
+
+//     console.log("STATUS:", res.status);
+
+//     const raw = await res.text();
+//     console.log("RAW RESPONSE (first 200):", raw.slice(0, 200));
+
+//     if (!res.ok) {
+//       return NextResponse.json(
+//         {
+//           success: false,
+//           status: res.status,
+//           error: raw,
+//         },
+//         { status: res.status }
+//       );
+//     }
+
+//     const data = JSON.parse(raw);
+
+//     return NextResponse.json({
+//       success: true,
+//       categories: data,
+//     });
+
+//   } catch (err: any) {
+//     console.error("🔥 CATEGORY FETCH ERROR:", err.message);
+
+//     return NextResponse.json(
+//       {
+//         success: false,
+//         error: err.message,
+//       },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+
