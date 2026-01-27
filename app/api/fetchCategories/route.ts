@@ -338,20 +338,88 @@
 
 
 
+// import { NextResponse } from "next/server";
+
+// export async function GET() {
+//   try {
+//     const baseUrl = "https://staging.yourartsupplies.com/"; // 👈 MAGENTO BASE URL
+
+//     // ❌ env ki jagah direct value
+//     const basicUser = "gkmtqhrawb";
+//     const basicPass = "nN8BwhpEum";
+
+//     console.log("📦 CATEGORY FETCH START");
+
+//     if (!baseUrl || !basicUser || !basicPass) {
+//       throw new Error("Missing BASIC AUTH credentials");
+//     }
+
+//     const url = `${baseUrl.replace(/\/$/, "")}/rest/V1/categories`;
+//     console.log("➡️ HITTING:", url);
+
+//     const basicAuth = Buffer.from(
+//       `${basicUser}:${basicPass}`
+//     ).toString("base64");
+
+//     const res = await fetch(url, {
+//       method: "GET",
+//       headers: {
+//         Authorization: `Basic ${basicAuth}`,
+//         Accept: "application/json",
+//       },
+//       cache: "no-store",
+//     });
+
+//     console.log("STATUS:", res.status);
+
+//     const raw = await res.text();
+//     console.log("RAW RESPONSE (first 200):", raw.slice(0, 200));
+
+//     if (!res.ok) {
+//       return NextResponse.json(
+//         {
+//           success: false,
+//           status: res.status,
+//           error: raw,
+//         },
+//         { status: res.status }
+//       );
+//     }
+
+//     const data = JSON.parse(raw);
+
+//     return NextResponse.json({
+//       success: true,
+//       categories: data,
+//     });
+
+//   } catch (err: any) {
+//     console.error("🔥 CATEGORY FETCH ERROR:", err.message);
+
+//     return NextResponse.json(
+//       {
+//         success: false,
+//         error: err.message,
+//       },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+
+
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const baseUrl = "https://staging.yourartsupplies.com/"; // 👈 MAGENTO BASE URL
-
-    // ❌ env ki jagah direct value
-    const basicUser = "gkmtqhrawb";
-    const basicPass = "nN8BwhpEum";
+    const baseUrl = process.env.NEXT_PUBLIC_MAGENTO_URL;
+    const basicUser = process.env.BASIC_AUTH_USER;
+    const basicPass = process.env.BASIC_AUTH_PASS;
 
     console.log("📦 CATEGORY FETCH START");
 
     if (!baseUrl || !basicUser || !basicPass) {
-      throw new Error("Missing BASIC AUTH credentials");
+      throw new Error("Missing BASIC AUTH env variables");
     }
 
     const url = `${baseUrl.replace(/\/$/, "")}/rest/V1/categories`;
@@ -364,8 +432,8 @@ export async function GET() {
     const res = await fetch(url, {
       method: "GET",
       headers: {
-        Authorization: `Basic ${basicAuth}`,
-        Accept: "application/json",
+        "Authorization": `Basic ${basicAuth}`,
+        "Accept": "application/json",
       },
       cache: "no-store",
     });
