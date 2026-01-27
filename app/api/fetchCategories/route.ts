@@ -224,45 +224,113 @@
 // }
 
 
+// import { NextResponse } from "next/server";
+
+// export async function GET() {
+//   try {
+//     // 🔥 DEBUG LINE (IMPORTANT)
+//     console.log("VERCEL TOKEN:", process.env.INTEGRATION_API_TOKEN);
+
+//     const res = await fetch(
+//       "https://test.flipflops.cc/rest/V1/categories",
+//       {
+//         method: "GET",
+//         headers: {
+//   "Accept": "application/json",
+//   "Content-Type": "application/json",
+//   "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36",
+//   "Referer": "https://my-nextjs-project-five-red.vercel.app",
+//   "Origin": "https://my-nextjs-project-five-red.vercel.app"
+// },
+//         cache: "no-store",
+//       }
+//     );
+
+//     if (!res.ok) {
+//       const text = await res.text();
+//       console.error("Magento Error:", res.status, text);
+
+//       return NextResponse.json(
+//         { error: "Magento API failed", details: text },
+//         { status: res.status }
+//       );
+//     }
+
+//     const data = await res.json();
+//     return NextResponse.json(data);
+
+//   } catch (err: any) {
+//     console.error("Fetch crashed:", err);
+//     return NextResponse.json(
+//       { error: err.message },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+
+
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    // 🔥 DEBUG LINE (IMPORTANT)
-    console.log("VERCEL TOKEN:", process.env.INTEGRATION_API_TOKEN);
+    const baseUrl = process.env.NEXT_PUBLIC_MAGENTO_URL;
+    const basicUser = process.env.BASIC_AUTH_USER;
+    const basicPass = process.env.BASIC_AUTH_PASS;
 
-    const res = await fetch(
-      "https://test.flipflops.cc/rest/V1/categories",
-      {
-        method: "GET",
-        headers: {
-  "Accept": "application/json",
-  "Content-Type": "application/json",
-  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36",
-  "Referer": "https://my-nextjs-project-five-red.vercel.app",
-  "Origin": "https://my-nextjs-project-five-red.vercel.app"
-},
-        cache: "no-store",
-      }
-    );
+    console.log("📦 CATEGORY FETCH START");
+
+    if (!baseUrl || !basicUser || !basicPass) {
+      throw new Error("Missing BASIC AUTH env variables");
+    }
+
+    const url = `${baseUrl.replace(/\/$/, "")}/rest/V1/categories`;
+    console.log("➡️ HITTING:", url);
+
+    const basicAuth = Buffer.from(
+      `${basicUser}:${basicPass}`
+    ).toString("base64");
+
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Authorization": `Basic ${basicAuth}`,
+        "Accept": "application/json",
+      },
+      cache: "no-store",
+    });
+
+    console.log("STATUS:", res.status);
+
+    const raw = await res.text();
+    console.log("RAW RESPONSE (first 200):", raw.slice(0, 200));
 
     if (!res.ok) {
-      const text = await res.text();
-      console.error("Magento Error:", res.status, text);
-
       return NextResponse.json(
-        { error: "Magento API failed", details: text },
+        {
+          success: false,
+          status: res.status,
+          error: raw,
+        },
         { status: res.status }
       );
     }
 
-    const data = await res.json();
-    return NextResponse.json(data);
+    const data = JSON.parse(raw);
+
+    return NextResponse.json({
+      success: true,
+      categories: data,
+    });
 
   } catch (err: any) {
-    console.error("Fetch crashed:", err);
+    console.error("🔥 CATEGORY FETCH ERROR:", err.message);
+
     return NextResponse.json(
-      { error: err.message },
+      {
+        success: false,
+        error: err.message,
+      },
       { status: 500 }
     );
   }
