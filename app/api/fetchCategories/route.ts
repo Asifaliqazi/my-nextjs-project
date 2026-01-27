@@ -228,6 +228,9 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
+    // 🔥 DEBUG LINE (IMPORTANT)
+    console.log("VERCEL TOKEN:", process.env.INTEGRATION_API_TOKEN);
+
     const res = await fetch(
       "https://test.flipflops.cc/rest/V1/categories",
       {
