@@ -1113,6 +1113,7 @@
 
 
 "use client";
+export const dynamic = "force-dynamic"; // ✅ forces Next.js to treat this as dynamic page
 
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
