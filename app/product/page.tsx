@@ -1110,22 +1110,24 @@
 //   );
 // }
 
-import { Suspense } from "react";
-import ProductClient from "./ProductClient";
-
 export const dynamic = "force-dynamic";
+
+import { Suspense } from "react";
+import dynamicImport from "next/dynamic"; // ✅ name change
+
+const ProductDetailPage = dynamicImport(
+  () => import("./ProductClient"),
+  { ssr: false } // 🔥 MOST IMPORTANT
+);
 
 export default function ProductPage() {
   return (
-    <div className="p-4 max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Product Page</h1>
-
-      <Suspense fallback={<p>Loading product...</p>}>
-        <ProductClient />
-      </Suspense>
-    </div>
+    <Suspense fallback={<p className="p-4">Loading product...</p>}>
+      <ProductDetailPage />
+    </Suspense>
   );
 }
+
 
 
 
