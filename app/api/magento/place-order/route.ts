@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const MAGENTO_BASE =
-  process.env.NEXT_PUBLIC_MAGENTO_URL || "http://localhost:8080";
+  process.env.NEXT_PUBLIC_MAGENTO_URL || "http://localhost:3000";
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
       paymentMethod,
       billingAddress,
     };
+    
 
     console.log(
       "💳 Magento Place Order Payload:",
