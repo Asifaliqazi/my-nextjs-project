@@ -1,3 +1,4 @@
+//flip flop
 // import { NextResponse } from "next/server";
 
 // export async function GET() {
@@ -20,251 +21,240 @@
 // }
 
 
-
 // import { NextResponse } from "next/server";
+// import { getMagentoToken, clearMagentoToken } from "@/lib/magentoToken";
 
 // export async function GET() {
 //   try {
-//     const baseUrl = process.env.NEXT_PUBLIC_MAGENTO_URL;
-//     const token = process.env.INTEGRATION_API_TOKEN;
-
-//     if (!baseUrl || !token) {
-//       throw new Error("Environment variables API_BASE_URL or INTEGRATION_API_TOKEN missing");
-//     }
-
-//     const url = `${baseUrl}/rest/V1/categories`;
-
-//     const res = await fetch(url, {
-//       method: "GET",
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//         "Content-Type": "application/json",
-//       },
-//     });
-
-//     if (!res.ok) {
-//       throw new Error(`HTTP error! status: ${res.status}`);
-//     }
-
-//     const data = await res.json();
-
-//     return NextResponse.json(data);
-//   } catch (err) {
-//     console.error("Server-side fetch failed:", err);
-//     return NextResponse.json(
-//       { error: "Failed to fetch categories" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-
-
-// // app/api/fetchCategories/route.ts
-// import { NextResponse } from "next/server";
-
-// export async function GET() {
-//   try {
-//     // Server-side environment variables (secret, client-side not visible)
-//     const baseUrl = process.env.MAGENTO_URL;
-//     const token = process.env.MAGENTO_API_TOKEN;
-    
-//     if (!baseUrl || !token) {
-//       throw new Error(
-//         "Environment variables MAGENTO_URL or MAGENTO_API_TOKEN missing"
-//       );
-//     }
-
-//     const url = `${baseUrl}/rest/V1/categories`;
-
-//     const res = await fetch(url, {
-//       method: "GET",
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//         "Content-Type": "application/json",
-//       },
-//     });
-
-//     if (!res.ok) {
-//       throw new Error(`HTTP error! status: ${res.status}`);
-//     }
-
-//     const data = await res.json();
-
-//     return NextResponse.json(data);
-//   } catch (err) {
-//     console.error("Server-side fetch failed:", err);
-//     return NextResponse.json(
-//       { error: "Failed to fetch categories" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-// import { NextResponse } from "next/server";
-
-// export async function GET() {
-//   try {
-//     console.log("MAGENTO_URL =", process.env.NEXT_PUBLIC_MAGENTO_URL);
-//     console.log("TOKEN_EXISTS =", !!process.env.INTEGRATION_API_TOKEN);
-
-//     const baseUrl = process.env.NEXT_PUBLIC_MAGENTO_URL;
-//     const token = process.env.INTEGRATION_API_TOKEN;
-
-//     if (!baseUrl || !token) {
-//       return NextResponse.json(
-//         { error: "ENV MISSING", baseUrl, tokenExists: !!token },
-//         { status: 500 }
-//       );
-//     }
-
-//     const res = await fetch(`${baseUrl}/rest/V1/categories`, {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//         "Content-Type": "application/json",
-//       },
-//     });
-
-//     const text = await res.text();
-//     return NextResponse.json({ status: res.status, text });
-//   } catch (err) {
-//     console.error(err);
-//     return NextResponse.json({ error: "FAILED" }, { status: 500 });
-//   }
-// }
-
-
-
-// import { NextResponse } from "next/server";
-
-// export async function GET() {
-//   try {
-//     const apiUrl = process.env.API_BASE_URL;
-//     const token = process.env.INTEGRATION_API_TOKEN;
-
-//     // 🔍 DEBUG LOGS
-//     console.log("API URL:", apiUrl);
-//     console.log("TOKEN EXISTS:", !!token);
-//     console.log("TOKEN LENGTH:", token?.length);
-
-//     if (!apiUrl || !token) {
-//       console.error("❌ ENV MISSING");
-//       return NextResponse.json(
-//         { error: "Env vars missing" },
-//         { status: 500 }
-//       );
-//     }
-
-//     const res = await fetch(apiUrl, {
-//       method: "GET",
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//         "Content-Type": "application/json",
-//       },
-//       cache: "no-store",
-//     });
-
-//     console.log("Magento status:", res.status);
-
-//     if (!res.ok) {
-//       const text = await res.text();
-//       console.error("Magento response:", text);
-//       throw new Error(`HTTP error! status: ${res.status}`);
-//     }
-
-//     const data = await res.json();
-//     return NextResponse.json(data);
-
-//   } catch (err) {
-//     console.error("❌ Server-side fetch failed:", err);
-//     return NextResponse.json(
-//       { error: "Failed to fetch categories" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-
-
-// import { NextResponse } from "next/server";
-
-// export async function GET() {
-//   try {
-//     const apiUrl = process.env.API_BASE_URL;
-//     const token = process.env.INTEGRATION_API_TOKEN;
-//     console.log("API URL:", process.env.API_BASE_URL);
-//     console.log("Token length:", process.env.INTEGRATION_API_TOKEN?.length);
-
-//     if (!apiUrl || !token) {
-//       return NextResponse.json({ error: "Env vars missing" }, { status: 500 });
-//     }
-
-//     const res = await fetch(apiUrl, {
-//       method: "GET",
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//         "Content-Type": "application/json",
-//       },
-//       cache: "no-store",
-//     });
-
-//     if (!res.ok) {
-//       const text = await res.text();
-//       console.error("Magento response:", text);
-//       throw new Error(`HTTP error! status: ${res.status}`);
-//     }
-
-//     const data = await res.json();
-//     return NextResponse.json(data);
-
-//   } catch (err) {
-//     console.error("Server-side fetch failed:", err);
-//     return NextResponse.json({ error: "Failed to fetch categories" }, { status: 500 });
-//   }
-// }
-
-
-// import { NextResponse } from "next/server";
-
-// export async function GET() {
-//   try {
-//     // 🔥 DEBUG LINE (IMPORTANT)
-//     console.log("VERCEL TOKEN:", process.env.INTEGRATION_API_TOKEN);
+//     const token = await getMagentoToken();
 
 //     const res = await fetch(
-//       "https://test.flipflops.cc/rest/V1/categories",
+//       `${process.env.NEXT_PUBLIC_MAGENTO_URL}/rest/V1/categories`,
 //       {
-//         method: "GET",
 //         headers: {
-//   "Accept": "application/json",
-//   "Content-Type": "application/json",
-//   "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36",
-//   "Referer": "https://my-nextjs-project-five-red.vercel.app",
-//   "Origin": "https://my-nextjs-project-five-red.vercel.app"
-// },
+//           Authorization: `Bearer ${token}`,
+//           Accept: "application/json",
+//         },
 //         cache: "no-store",
 //       }
 //     );
 
-//     if (!res.ok) {
-//       const text = await res.text();
-//       console.error("Magento Error:", res.status, text);
+//     const text = await res.text();
 
-//       return NextResponse.json(
-//         { error: "Magento API failed", details: text },
-//         { status: res.status }
-//       );
+//     // ❌ Token expired / HTML response
+//     if (res.status === 401 || text.startsWith("<")) {
+//       console.warn("🔒 Token invalid, clearing cache");
+//       clearMagentoToken();
+//       throw new Error("Token expired");
 //     }
 
-//     const data = await res.json();
+//     const data = JSON.parse(text);
 //     return NextResponse.json(data);
 
-//   } catch (err: any) {
-//     console.error("Fetch crashed:", err);
+//   } catch (err) {
+//     console.error("❌ fetchCategories failed:", err);
 //     return NextResponse.json(
-//       { error: err.message },
+//       { error: "Failed to fetch categories" },
 //       { status: 500 }
 //     );
+//   }
+// }
+
+
+// import { NextResponse } from "next/server";
+// import { getMagentoToken, clearMagentoToken } from "@/lib/magentoToken";
+
+// export async function GET() {
+//   try {
+//     const token = await getMagentoToken();
+
+//     const res = await fetch(
+//       `${process.env.NEXT_PUBLIC_MAGENTO_URL}/rest/V1/categories`,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           Accept: "application/json",
+//         },
+//         cache: "no-store",
+//       }
+//     );
+
+//     const text = await res.text();
+
+//     if (res.status === 401 || text.startsWith("<")) {
+//       clearMagentoToken();
+//       throw new Error("Token expired");
+//     }
+
+//     const data = JSON.parse(text);
+
+//     // ✅ Console log to check
+//     console.log("🟢 Raw categories response:", data);
+
+//     return NextResponse.json(data);
+
+//   } catch (err) {
+//     console.error("❌ fetchCategories failed:", err);
+//     return NextResponse.json(
+//       { error: "Failed to fetch categories" },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+
+// import { NextResponse } from "next/server";
+// import { getMagentoToken, clearMagentoToken } from "@/lib/magentoToken";
+
+// export async function GET() {
+//   try {
+//     const token = await getMagentoToken();
+
+//     const res = await fetch(
+//       `${process.env.NEXT_PUBLIC_MAGENTO_URL}/rest/V1/categories`,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           Accept: "application/json",
+//         },
+//         cache: "no-store",
+//       }
+//     );
+
+//     const text = await res.text();
+
+//     // Handle expired token or invalid response
+//     if (res.status === 401 || text.startsWith("<")) {
+//       clearMagentoToken();
+//       throw new Error("Token expired");
+//     }
+
+//     const data = JSON.parse(text);
+
+//     // ================= FILTER =================
+//     // Remove Slider / Promo / any unwanted categories recursively
+//     function filterCategories(cat: any): any {
+//       if (!cat || !cat.children_data) return cat;
+
+//       const filteredChildren = cat.children_data
+//         .filter(
+//           (child: any) =>
+//             child.is_active &&
+//             !["slider", "promo"].some((word) =>
+//               child.name.toLowerCase().includes(word)
+//             )
+//         )
+//         .map((child: any) => filterCategories(child)); // recursive
+
+//       return { ...cat, children_data: filteredChildren };
+//     }
+
+//     const filteredData = filterCategories(data);
+
+//     console.log("🟢 Filtered categories response:", filteredData);
+
+//     return NextResponse.json(filteredData);
+//   } catch (err) {
+//     console.error("❌ fetchCategories failed:", err);
+//     return NextResponse.json(
+//       { error: "Failed to fetch categories" },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+
+import { NextResponse } from "next/server";
+import { getMagentoToken, clearMagentoToken } from "@/lib/magentoToken";
+
+export async function GET() {
+  try {
+    const token = await getMagentoToken();
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_MAGENTO_URL}/rest/V1/categories`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+        cache: "no-store",
+      }
+    );
+
+    const text = await res.text();
+
+    // Handle expired token or invalid response
+    if (res.status === 401 || text.startsWith("<")) {
+      clearMagentoToken();
+      throw new Error("Token expired");
+    }
+
+    const data = JSON.parse(text);
+
+    // ================= FILTER =================
+    function filterCategories(cat: any): any {
+      if (!cat || !cat.children_data) return cat;
+
+      const filteredChildren = cat.children_data
+        .filter(
+          (child: any) =>
+            child.is_active &&
+            !["slider", "promo"].some((word) =>
+              child.name.toLowerCase().includes(word)
+            )
+        )
+        .map((child: any) => filterCategories(child));
+
+      return { ...cat, children_data: filteredChildren };
+    }
+
+    const filteredData = filterCategories(data);
+
+    console.log("🟢 [Server] Filtered categories response:", filteredData);
+
+    return NextResponse.json(filteredData);
+  } catch (err) {
+    console.error("❌ fetchCategories failed:", err);
+    return NextResponse.json(
+      { error: "Failed to fetch categories" },
+      { status: 500 }
+    );
+  }
+}
+
+
+
+
+
+
+//yas
+// import { NextResponse } from "next/server";
+
+// export async function GET() {
+//   try {
+//     const res = await fetch(process.env.API_BASE_URL!, {
+//       method: "GET",
+//       headers: {
+//         Authorization: `Bearer ${process.env.INTEGRATION_API_TOKEN}`,
+//         "Content-Type": "application/json",
+//       },
+//     });
+
+//     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+//     const data = await res.json();
+
+//     // 🔹 Debug: Print structure to terminal
+//     console.log("Fetched categories data:");
+//     console.dir(data, { depth: null }); // poora nested object dekhne ke liye
+
+//     // 🔹 Optional: Pretty print
+//     // console.log(JSON.stringify(data, null, 2));
+
+//     return NextResponse.json(data);
+//   } catch (err) {
+//     console.error("Server-side fetch failed:", err);
+//     return NextResponse.json({ error: "Failed to fetch categories" }, { status: 500 });
 //   }
 // }
 
@@ -337,29 +327,24 @@
 // }
 
 
-
+// /app/api/fetchCategories/route.ts
 // import { NextResponse } from "next/server";
 
 // export async function GET() {
 //   try {
-//     const baseUrl = "https://staging.yourartsupplies.com/"; // 👈 MAGENTO BASE URL
-
-//     // ❌ env ki jagah direct value
-//     const basicUser = "gkmtqhrawb";
-//     const basicPass = "nN8BwhpEum";
-
-//     console.log("📦 CATEGORY FETCH START");
+//     const baseUrl = process.env.NEXT_PUBLIC_MAGENTO_URL;
+//     const basicUser = process.env.BASIC_AUTH_USER;
+//     const basicPass = process.env.BASIC_AUTH_PASS;
 
 //     if (!baseUrl || !basicUser || !basicPass) {
-//       throw new Error("Missing BASIC AUTH credentials");
+//       throw new Error("Missing BASIC AUTH env variables");
 //     }
 
+//     // Construct URL safely
 //     const url = `${baseUrl.replace(/\/$/, "")}/rest/V1/categories`;
-//     console.log("➡️ HITTING:", url);
 
-//     const basicAuth = Buffer.from(
-//       `${basicUser}:${basicPass}`
-//     ).toString("base64");
+//     // Basic Auth header
+//     const basicAuth = Buffer.from(`${basicUser}:${basicPass}`).toString("base64");
 
 //     const res = await fetch(url, {
 //       method: "GET",
@@ -370,11 +355,9 @@
 //       cache: "no-store",
 //     });
 
-//     console.log("STATUS:", res.status);
-
 //     const raw = await res.text();
-//     console.log("RAW RESPONSE (first 200):", raw.slice(0, 200));
 
+//     // Check HTTP status
 //     if (!res.ok) {
 //       return NextResponse.json(
 //         {
@@ -386,16 +369,28 @@
 //       );
 //     }
 
-//     const data = JSON.parse(raw);
+//     // Parse JSON safely
+//     let data;
+//     try {
+//       data = JSON.parse(raw);
+//     } catch (err) {
+//       return NextResponse.json(
+//         {
+//           success: false,
+//           error: "Failed to parse JSON response from Magento",
+//           raw: raw.slice(0, 200),
+//         },
+//         { status: 500 }
+//       );
+//     }
 
+//     // ✅ Return success + categories
 //     return NextResponse.json({
 //       success: true,
 //       categories: data,
 //     });
-
 //   } catch (err: any) {
 //     console.error("🔥 CATEGORY FETCH ERROR:", err.message);
-
 //     return NextResponse.json(
 //       {
 //         success: false,
@@ -405,74 +400,4 @@
 //     );
 //   }
 // }
-
-
-
-import { NextResponse } from "next/server";
-
-export async function GET() {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_MAGENTO_URL;
-    const basicUser = process.env.BASIC_AUTH_USER;
-    const basicPass = process.env.BASIC_AUTH_PASS;
-
-    console.log("📦 CATEGORY FETCH START");
-
-    if (!baseUrl || !basicUser || !basicPass) {
-      throw new Error("Missing BASIC AUTH env variables");
-    }
-
-    const url = `${baseUrl.replace(/\/$/, "")}/rest/V1/categories`;
-    console.log("➡️ HITTING:", url);
-
-    const basicAuth = Buffer.from(
-      `${basicUser}:${basicPass}`
-    ).toString("base64");
-
-    const res = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Authorization": `Basic ${basicAuth}`,
-        "Accept": "application/json",
-      },
-      cache: "no-store",
-    });
-
-    console.log("STATUS:", res.status);
-
-    const raw = await res.text();
-    console.log("RAW RESPONSE (first 200):", raw.slice(0, 200));
-
-    if (!res.ok) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: res.status,
-          error: raw,
-        },
-        { status: res.status }
-      );
-    }
-
-    const data = JSON.parse(raw);
-
-    return NextResponse.json({
-      success: true,
-      categories: data,
-    });
-
-  } catch (err: any) {
-    console.error("🔥 CATEGORY FETCH ERROR:", err.message);
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: err.message,
-      },
-      { status: 500 }
-    );
-  }
-}
-
-
 

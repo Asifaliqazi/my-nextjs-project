@@ -2396,6 +2396,538 @@
 
 
 
+// "use client";
+
+// import React, {
+//   createContext,
+//   useContext,
+//   useEffect,
+//   useState,
+//   ReactNode,
+// } from "react";
+
+// /* ================= TYPES ================= */
+
+// export type Product = {
+//   sku: string;
+//   title: string;
+//   price: number;
+//   image?: string;
+//   stock: number;
+// };
+
+// export type CartItem = Product & {
+//   item_id: number;
+//   qty: number;
+// };
+
+// type AddToCartResult = {
+//   success: boolean;
+//   message?: string;
+// };
+
+// type CartContextType = {
+//   cart: CartItem[];
+//   cartId: string | null;
+
+//   addToCart: (product: Product, qty?: number) => Promise<AddToCartResult>;
+//   updateCartItem: (item_id: number, qty: number) => Promise<void>;
+//   removeFromCart: (item_id: number) => Promise<void>;
+//   clearCart: () => void;
+//   refreshCart: () => Promise<void>;
+
+//   drawerOpen: boolean;
+//   openDrawer: () => void;
+//   closeDrawer: () => void;
+// };
+
+// const CartContext = createContext<CartContextType | null>(null);
+
+// /* ================= PROVIDER ================= */
+
+// export const CartProvider = ({ children }: { children: ReactNode }) => {
+//   const [cart, setCart] = useState<CartItem[]>([]);
+//   const [cartId, setCartId] = useState<string | null>(null);
+
+//   /* 🔥 DRAWER STATE */
+//   const [drawerOpen, setDrawerOpen] = useState(false);
+
+//   const openDrawer = () => setDrawerOpen(true);
+//   const closeDrawer = () => setDrawerOpen(false);
+
+//   /* ---------- SAVE CART ID ---------- */
+//   const saveCartId = (id: string) => {
+//     if (!id || id.includes("<!DOCTYPE")) return;
+//     localStorage.setItem("guestCartId", id);
+//     setCartId(id);
+//   };
+
+//   /* ---------- GET / CREATE CART ---------- */
+//   const getCartId = async (): Promise<string> => {
+//     let id = cartId || localStorage.getItem("guestCartId");
+//     if (id) return id;
+
+//     const res = await fetch("/api/guest-cart", { method: "POST" });
+//     const newId = (await res.text()).trim();
+//     saveCartId(newId);
+//     return newId;
+//   };
+
+//   /* ---------- REFRESH CART ---------- */
+//   const refreshCart = async () => {
+//     try {
+//       const id = cartId || localStorage.getItem("guestCartId");
+//       if (!id) return;
+
+//       const res = await fetch(`/api/cart?cartId=${id}`);
+//       if (!res.ok) return;
+
+//       const data = await res.json();
+
+//       const items: CartItem[] = (data.items || []).map((item: any) => ({
+//         item_id: item.item_id,
+//         sku: item.sku,
+//         title: item.name,
+//         price: item.price,
+//         qty: item.qty,
+//         image: item.extension_attributes?.image,
+//         stock: 0,
+//       }));
+
+//       setCart(items);
+//     } catch {
+//       setCart([]);
+//     }
+//   };
+
+//   /* ---------- ADD TO CART ---------- */
+//   const addToCart = async (
+//     product: Product,
+//     qty = 1
+//   ): Promise<AddToCartResult> => {
+//     try {
+//       const id = await getCartId();
+
+//       const existing = cart.find((i) => i.sku === product.sku);
+//       const finalQty = existing ? existing.qty + qty : qty;
+
+//       const payload = {
+//         cartItem: {
+//           sku: product.sku,
+//           qty: finalQty,
+//           quote_id: id,
+//           ...(existing?.item_id && { item_id: existing.item_id }),
+//         },
+//       };
+
+//       const res = await fetch("/api/add-to-cart", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(payload),
+//       });
+
+//       const data = await res.json();
+
+//       if (!res.ok || data?.message) {
+//         return { success: false, message: data?.message };
+//       }
+
+//       if (existing) {
+//         setCart((prev) =>
+//           prev.map((i) =>
+//             i.sku === product.sku ? { ...i, qty: finalQty } : i
+//           )
+//         );
+//       } else {
+//         setCart((prev) => [
+//           ...prev,
+//           { ...product, item_id: data.item_id, qty },
+//         ]);
+//       }
+
+//       /* 🔥 ENSURE DRAWER OPENS AFTER STATE UPDATE */
+//       setTimeout(() => openDrawer(), 0);
+
+//       return { success: true };
+//     } catch {
+//       return { success: false, message: "Add to cart error" };
+//     }
+//   };
+
+//   /* ---------- UPDATE QTY ---------- */
+//   // const updateCartItem = async (item_id: number, qty: number) => {
+//   //   const id = cartId || localStorage.getItem("guestCartId");
+//   //   if (!id) return;
+
+//   //   try {
+//   //     await fetch("/api/update-cart-item", {
+//   //       method: "PUT",
+//   //       headers: { "Content-Type": "application/json" },
+//   //       body: JSON.stringify({ cartId: id, item_id, qty }),
+//   //     });
+
+//   //     await refreshCart();
+
+//   //     /* 🔥 KEEP DRAWER OPEN */
+//   //     setTimeout(() => openDrawer(), 0);
+//   //   } catch {
+//   //     throw new Error("Quantity is not available");
+//   //   }
+//   // };
+//   const updateCartItem = async (item_id: number, qty: number) => {
+//   const id = cartId || localStorage.getItem("guestCartId");
+//   if (!id) return;
+
+//   const res = await fetch("/api/update-cart-item", {
+//     method: "PUT",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({ cartId: id, item_id, qty }),
+//   });
+
+//   const data = await res.json();
+
+//   // 🔴 THIS IS THE MISSING PART
+//   if (!res.ok) {
+//     throw new Error(data?.message || "Quantity is not available");
+//   }
+
+//   await refreshCart();
+
+//   /* 🔥 KEEP DRAWER OPEN */
+//   setTimeout(() => openDrawer(), 0);
+//   };
+
+
+//   /* ---------- REMOVE ITEM ---------- */
+//   const removeFromCart = async (item_id: number) => {
+//     const id = cartId || localStorage.getItem("guestCartId");
+//     if (!id) return;
+
+//     await fetch("/api/remove-from-cart", {
+//       method: "DELETE",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ cartId: id, item_id }),
+//     });
+
+//     await refreshCart();
+//   };
+
+//   /* ---------- CLEAR CART ---------- */
+//   const clearCart = () => {
+//     setCart([]);
+//     setCartId(null);
+//     localStorage.removeItem("guestCartId");
+//     closeDrawer();
+//   };
+
+//   /* ---------- LOAD CART ---------- */
+//   useEffect(() => {
+//     const stored = localStorage.getItem("guestCartId");
+//     if (stored) {
+//       setCartId(stored);
+//       refreshCart();
+//     }
+//   }, []);
+
+//   return (
+//     <CartContext.Provider
+//       value={{
+//         cart,
+//         cartId,
+
+//         addToCart,
+//         updateCartItem,
+//         removeFromCart,
+//         clearCart,
+//         refreshCart,
+
+//         drawerOpen,
+//         openDrawer,
+//         closeDrawer,
+//       }}
+//     >
+//       {children}
+//     </CartContext.Provider>
+//   );
+// };
+
+// /* ================= HOOK ================= */
+
+// export const useCart = () => {
+//   const ctx = useContext(CartContext);
+//   if (!ctx) throw new Error("useCart must be used inside CartProvider");
+//   return ctx;
+// };
+
+
+
+
+
+
+
+
+
+
+// "use client";
+
+// import React, {
+//   createContext,
+//   useContext,
+//   useEffect,
+//   useState,
+//   ReactNode,
+// } from "react";
+
+// /* ================= TYPES ================= */
+
+// export type Product = {
+//   sku: string;
+//   title: string;
+//   price: number;
+//   image?: string;
+//   stock: number;
+// };
+
+// export type CartItem = Product & {
+//   item_id: number;
+//   qty: number;
+// };
+
+// type AddToCartResult = {
+//   success: boolean;
+//   message?: string;
+// };
+
+// type CartContextType = {
+//   cart: CartItem[];
+//   cartId: string | null;
+
+//   addToCart: (product: Product, qty?: number) => Promise<AddToCartResult>;
+//   updateCartItem: (item_id: number, qty: number) => Promise<void>;
+//   removeFromCart: (item_id: number) => Promise<void>;
+//   clearCart: () => void;
+//   refreshCart: () => Promise<void>;
+
+//   drawerOpen: boolean;
+//   openDrawer: () => void;
+//   closeDrawer: () => void;
+// };
+
+// const CartContext = createContext<CartContextType | null>(null);
+
+// /* ================= PROVIDER ================= */
+
+// export const CartProvider = ({ children }: { children: ReactNode }) => {
+//   const [cart, setCart] = useState<CartItem[]>([]);
+//   const [cartId, setCartId] = useState<string | null>(null);
+
+//   /* 🔥 DRAWER STATE */
+//   const [drawerOpen, setDrawerOpen] = useState(false);
+
+//   const openDrawer = () => setDrawerOpen(true);
+//   const closeDrawer = () => setDrawerOpen(false);
+
+//   /* ---------- SAVE CART ID ---------- */
+//   const saveCartId = (id: string) => {
+//     if (!id || id.includes("<!DOCTYPE")) return;
+//     localStorage.setItem("guestCartId", id);
+//     setCartId(id);
+//     console.log("🆔 Guest cart initialized:", id);
+//   };
+
+//   /* ---------- CREATE / GET CART ---------- */
+//   const getCartId = async (): Promise<string> => {
+//     let id = cartId || localStorage.getItem("guestCartId");
+//     if (id) return id;
+
+//     console.log("⚡ Creating new guest cart...");
+//     const res = await fetch("/api/guest-cart", { method: "POST" });
+//     const newId = (await res.text()).trim();
+//     saveCartId(newId);
+//     return newId;
+//   };
+
+//   /* ---------- REFRESH CART ---------- */
+//   const refreshCart = async () => {
+//     try {
+//       const id = cartId || localStorage.getItem("guestCartId");
+//       if (!id) return;
+
+//       const res = await fetch(`/api/cart?cartId=${id}`);
+//       if (!res.ok) {
+//         console.log("⚠️ Refresh cart failed:", res.statusText);
+//         return;
+//       }
+
+//       const data = await res.json();
+
+//       const items: CartItem[] = (data.items || []).map((item: any) => ({
+//         item_id: item.item_id,
+//         sku: item.sku,
+//         title: item.name,
+//         price: item.price,
+//         qty: item.qty,
+//         image: item.extension_attributes?.image,
+//         stock: 0,
+//       }));
+
+//       setCart(items);
+//       console.log("🛒 Cart refreshed:", items);
+//     } catch (err) {
+//       console.error("❌ Refresh cart error:", err);
+//       setCart([]);
+//     }
+//   };
+
+//   /* ---------- ADD TO CART ---------- */
+//   const addToCart = async (
+//     product: Product,
+//     qty = 1
+//   ): Promise<AddToCartResult> => {
+//     try {
+//       const id = await getCartId(); // ensure guest cart exists
+
+//       const existing = cart.find((i) => i.sku === product.sku);
+//       const finalQty = existing ? existing.qty + qty : qty;
+
+//       const payload = {
+//         cartItem: {
+//           sku: product.sku,
+//           qty: finalQty,
+//           quoteId: id, // ✅ Magento expects quoteId
+//           ...(existing?.item_id && { item_id: existing.item_id }),
+//         },
+//       };
+
+//       console.log("📤 Sending Add to Cart request:", payload);
+
+//       const res = await fetch("/api/add-to-cart", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(payload),
+//       });
+
+//       const data = await res.json();
+//       console.log("📥 Add to Cart response:", data);
+
+//       if (!res.ok || data?.message) {
+//         return {
+//           success: false,
+//           message: data?.message || "Magento rejected add to cart",
+//         };
+//       }
+
+//       if (existing) {
+//         setCart((prev) =>
+//           prev.map((i) =>
+//             i.sku === product.sku ? { ...i, qty: finalQty } : i
+//           )
+//         );
+//       } else {
+//         setCart((prev) => [
+//           ...prev,
+//           { ...product, item_id: data.item_id, qty },
+//         ]);
+//       }
+
+//       setTimeout(() => openDrawer(), 0);
+
+//       return { success: true };
+//     } catch (err) {
+//       console.error("❌ Add to cart error:", err);
+//       return { success: false, message: "Add to cart error" };
+//     }
+//   };
+
+//   /* ---------- UPDATE QTY ---------- */
+//   const updateCartItem = async (item_id: number, qty: number) => {
+//     const id = cartId || localStorage.getItem("guestCartId");
+//     if (!id) return;
+
+//     const res = await fetch("/api/update-cart-item", {
+//       method: "PUT",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ cartId: id, item_id, qty }),
+//     });
+
+//     const data = await res.json();
+
+//     if (!res.ok) {
+//       throw new Error(data?.message || "Quantity is not available");
+//     }
+
+//     await refreshCart();
+//     setTimeout(() => openDrawer(), 0);
+//   };
+
+//   /* ---------- REMOVE ITEM ---------- */
+//   const removeFromCart = async (item_id: number) => {
+//     const id = cartId || localStorage.getItem("guestCartId");
+//     if (!id) return;
+
+//     await fetch("/api/remove-from-cart", {
+//       method: "DELETE",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ cartId: id, item_id }),
+//     });
+
+//     await refreshCart();
+//   };
+
+//   /* ---------- CLEAR CART ---------- */
+//   const clearCart = () => {
+//     setCart([]);
+//     setCartId(null);
+//     localStorage.removeItem("guestCartId");
+//     closeDrawer();
+//     console.log("🗑️ Cart cleared");
+//   };
+
+//   /* ---------- INITIALIZE CART ON LOAD ---------- */
+//   useEffect(() => {
+//     const initialize = async () => {
+//       const stored = localStorage.getItem("guestCartId");
+//       if (stored) {
+//         setCartId(stored);
+//         await refreshCart();
+//       } else {
+//         await getCartId(); // create guest cart if none
+//       }
+//     };
+
+//     initialize();
+//   }, []);
+
+//   return (
+//     <CartContext.Provider
+//       value={{
+//         cart,
+//         cartId,
+//         addToCart,
+//         updateCartItem,
+//         removeFromCart,
+//         clearCart,
+//         refreshCart,
+//         drawerOpen,
+//         openDrawer,
+//         closeDrawer,
+//       }}
+//     >
+//       {children}
+//     </CartContext.Provider>
+//   );
+// };
+
+// /* ================= HOOK ================= */
+
+// export const useCart = () => {
+//   const ctx = useContext(CartContext);
+//   if (!ctx) throw new Error("useCart must be used inside CartProvider");
+//   return ctx;
+// };
+
+
+
 "use client";
 
 import React, {
@@ -2449,7 +2981,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartId, setCartId] = useState<string | null>(null);
 
-  /* 🔥 DRAWER STATE */
+  /* 🔹 DRAWER STATE */
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const openDrawer = () => setDrawerOpen(true);
@@ -2460,15 +2992,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     if (!id || id.includes("<!DOCTYPE")) return;
     localStorage.setItem("guestCartId", id);
     setCartId(id);
+    console.log("🆔 Guest cart initialized:", id);
   };
 
-  /* ---------- GET / CREATE CART ---------- */
+  /* ---------- CREATE / GET CART ---------- */
   const getCartId = async (): Promise<string> => {
     let id = cartId || localStorage.getItem("guestCartId");
     if (id) return id;
 
+    console.log("⚡ Creating new guest cart...");
     const res = await fetch("/api/guest-cart", { method: "POST" });
     const newId = (await res.text()).trim();
+    console.log("HI this is  guest car id ",newId)
     saveCartId(newId);
     return newId;
   };
@@ -2480,7 +3015,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (!id) return;
 
       const res = await fetch(`/api/cart?cartId=${id}`);
-      if (!res.ok) return;
+      if (!res.ok) {
+        console.log("⚠️ Refresh cart failed:", res.statusText);
+        return;
+      }
 
       const data = await res.json();
 
@@ -2495,7 +3033,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }));
 
       setCart(items);
-    } catch {
+      console.log("🛒 Cart refreshed:", items);
+    } catch (err) {
+      console.error("❌ Refresh cart error:", err);
       setCart([]);
     }
   };
@@ -2506,19 +3046,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     qty = 1
   ): Promise<AddToCartResult> => {
     try {
-      const id = await getCartId();
+      const id = await getCartId(); // ensure guest cart exists
 
       const existing = cart.find((i) => i.sku === product.sku);
       const finalQty = existing ? existing.qty + qty : qty;
 
+      // ⚡ Magento expects snake_case for quote_id
       const payload = {
         cartItem: {
           sku: product.sku,
           qty: finalQty,
-          quote_id: id,
+          quoteId: id,
           ...(existing?.item_id && { item_id: existing.item_id }),
         },
       };
+
+      console.log("📤 Sending Add to Cart request:", payload);
 
       const res = await fetch("/api/add-to-cart", {
         method: "POST",
@@ -2527,11 +3070,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       });
 
       const data = await res.json();
+      console.log("📥 Add to Cart response:", data);
 
       if (!res.ok || data?.message) {
-        return { success: false, message: data?.message };
+        return {
+          success: false,
+          message: data?.message || "Magento rejected add to cart",
+        };
       }
 
+      // Update local cart
       if (existing) {
         setCart((prev) =>
           prev.map((i) =>
@@ -2541,67 +3089,48 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       } else {
         setCart((prev) => [
           ...prev,
-          { ...product, item_id: data.item_id, qty },
+          { ...product, item_id: data.item_id, qty: finalQty },
         ]);
       }
 
-      /* 🔥 ENSURE DRAWER OPENS AFTER STATE UPDATE */
       setTimeout(() => openDrawer(), 0);
 
       return { success: true };
-    } catch {
+    } catch (err) {
+      console.error("❌ Add to cart error:", err);
       return { success: false, message: "Add to cart error" };
     }
   };
 
   /* ---------- UPDATE QTY ---------- */
-  // const updateCartItem = async (item_id: number, qty: number) => {
-  //   const id = cartId || localStorage.getItem("guestCartId");
-  //   if (!id) return;
-
-  //   try {
-  //     await fetch("/api/update-cart-item", {
-  //       method: "PUT",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ cartId: id, item_id, qty }),
-  //     });
-
-  //     await refreshCart();
-
-  //     /* 🔥 KEEP DRAWER OPEN */
-  //     setTimeout(() => openDrawer(), 0);
-  //   } catch {
-  //     throw new Error("Quantity is not available");
-  //   }
-  // };
   const updateCartItem = async (item_id: number, qty: number) => {
-  const id = cartId || localStorage.getItem("guestCartId");
-  if (!id) return;
+    const id = cartId || localStorage.getItem("guestCartId");
+    if (!id) return;
 
-  const res = await fetch("/api/update-cart-item", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ cartId: id, item_id, qty }),
-  });
+    console.log(`🔄 Updating item ${item_id} to qty ${qty}`);
 
-  const data = await res.json();
+    const res = await fetch("/api/update-cart-item", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cartId: id, item_id, qty }),
+    });
 
-  // 🔴 THIS IS THE MISSING PART
-  if (!res.ok) {
-    throw new Error(data?.message || "Quantity is not available");
-  }
+    const data = await res.json();
 
-  await refreshCart();
+    if (!res.ok) {
+      throw new Error(data?.message || "Quantity is not available");
+    }
 
-  /* 🔥 KEEP DRAWER OPEN */
-  setTimeout(() => openDrawer(), 0);
+    await refreshCart();
+    setTimeout(() => openDrawer(), 0);
   };
-
 
   /* ---------- REMOVE ITEM ---------- */
   const removeFromCart = async (item_id: number) => {
     const id = cartId || localStorage.getItem("guestCartId");
     if (!id) return;
+
+    console.log(`❌ Removing item ${item_id} from cart`);
 
     await fetch("/api/remove-from-cart", {
       method: "DELETE",
@@ -2618,15 +3147,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCartId(null);
     localStorage.removeItem("guestCartId");
     closeDrawer();
+    console.log("🗑️ Cart cleared");
   };
 
-  /* ---------- LOAD CART ---------- */
+  /* ---------- INITIALIZE CART ON LOAD ---------- */
   useEffect(() => {
-    const stored = localStorage.getItem("guestCartId");
-    if (stored) {
-      setCartId(stored);
-      refreshCart();
-    }
+    const initialize = async () => {
+      const stored = localStorage.getItem("guestCartId");
+      if (stored) {
+        setCartId(stored);
+        await refreshCart();
+      } else {
+        await getCartId(); // create guest cart if none
+      }
+    };
+
+    initialize();
   }, []);
 
   return (
@@ -2634,13 +3170,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       value={{
         cart,
         cartId,
-
         addToCart,
         updateCartItem,
         removeFromCart,
         clearCart,
         refreshCart,
-
         drawerOpen,
         openDrawer,
         closeDrawer,

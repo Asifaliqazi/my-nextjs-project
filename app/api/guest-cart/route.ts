@@ -95,7 +95,7 @@ export async function POST() {
     });
 
     const cartId = await response.text(); // string with quotes
-
+    console.log(`this is card key ${response}`);
     if (!response.ok) {
       return NextResponse.json(
         { message: "Magento API failed" },

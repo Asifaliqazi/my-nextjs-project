@@ -106,7 +106,7 @@
 //           href="/"
 //           className="absolute left-1/2 transform -translate-x-1/2 text-4xl font-bold"
 //         >
-//           Reveredtech
+//           Abc
 //         </Link>
 
 //         {/* 🔹 CART */}
@@ -138,11 +138,10 @@
 
 // import React, { useEffect, useState } from "react";
 // import Link from "next/link";
-// import { ShoppingCart } from "lucide-react";
+// import { ShoppingCart, Search, User } from "lucide-react";
 // import { useCart } from "@/context/CartContext";
 // import CartDrawer from "./CartDrawer";
 
-// /* ================= TYPES ================= */
 // type Category = {
 //   id: number;
 //   name: string;
@@ -150,56 +149,230 @@
 //   children_data?: Category[];
 // };
 
-// /* ================= SLUG ================= */
 // const slugify = (text: string) =>
-//   text
-//     .toLowerCase()
-//     .replace(/[^a-z0-9]+/g, "-")
-//     .replace(/(^-|-$)/g, "");
+//   text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-// /* ================= COMPONENT ================= */
 // export default function Header() {
 //   const { cart, drawerOpen, openDrawer, closeDrawer } = useCart();
 //   const [categories, setCategories] = useState<Category[]>([]);
 
-//   /* ================= FETCH CATEGORIES ================= */
+//   useEffect(() => {
+//     fetch("/api/fetchCategories")
+//       .then(res => res.json())
+//       .then(data => setCategories(data.children_data || []))
+//       .catch(err => console.error(err));
+//   }, []);
+
+//   return (
+//     <>
+//       {/* 🔹 FIXED HEADER */}
+//       <header className="fixed top-0 left-0 w-full bg-white border-b z-50">
+        
+//         {/* 🔹 TOP ROW (LOGO CENTER + ICONS RIGHT) */}
+//         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-center relative">
+          
+//           {/* LOGO */}
+//           <Link
+//             href="/"
+//             className="text-4xl font-bold tracking-wide"
+//           >
+//             Mr. Ciggy
+//           </Link>
+
+//           {/* RIGHT ICONS */}
+//           <div className="absolute right-6 flex items-center gap-5">
+//             <Search size={20} className="cursor-pointer" />
+//             <User size={20} className="cursor-pointer" />
+
+//             <button onClick={openDrawer} className="relative">
+//               <ShoppingCart size={22} />
+//               {cart.length > 0 && (
+//                 <span className="absolute -top-2 -right-2 bg-black text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center">
+//                   {cart.length}
+//                 </span>
+//               )}
+//             </button>
+//           </div>
+//         </div>
+
+//         {/* 🔹 MENU ROW (LOGO KE NICHE) */}
+//         <div className="border-t">
+//           <nav className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-center gap-8 text-sm font-medium">
+//             {categories
+//               .filter(cat => cat.is_active)
+//               .map(cat => (
+//                 <Link
+//                   key={cat.id}
+//                   href={`/category/${slugify(cat.name)}`}
+//                   className="text-gray-700 hover:text-black transition"
+//                 >
+//                   {cat.name}
+//                 </Link>
+//               ))}
+//           </nav>
+//         </div>
+//       </header>
+
+//       {/* 🔹 CART DRAWER */}
+//       <CartDrawer open={drawerOpen} onClose={closeDrawer} />
+
+//       {/* 🔹 PAGE OFFSET (HEADER HEIGHT = 80 + 56 = 136px) */}
+//       <div className="h-[136px]" />
+//     </>
+//   );
+// }
+
+
+
+// "use client";
+
+// import React, { useEffect, useState } from "react";
+// import Link from "next/link";
+// import { ShoppingCart, Search, User } from "lucide-react";
+// import { useCart } from "@/context/CartContext";
+// import CartDrawer from "./CartDrawer";
+
+// type Category = {
+//   id: number;
+//   name: string;
+//   is_active: boolean;
+//   children_data?: Category[];
+// };
+
+// const slugify = (text: string) =>
+//   text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+// export default function Header() {
+//   const { cart, drawerOpen, openDrawer, closeDrawer } = useCart();
+//   const [categories, setCategories] = useState<Category[]>([]);
+
+//   useEffect(() => {
+//     fetch("/api/fetchCategories")
+//       .then(res => res.json())
+//       .then(data => setCategories(data.children_data || []))
+//       .catch(err => console.error(err));
+//   }, []);
+
+//   // 🔹 SMART LINK (parent ke andar products ho to child pe bhejo)
+//   const getCategoryLink = (cat: Category) => {
+//     const activeChildren =
+//       cat.children_data?.filter(c => c.is_active) || [];
+
+//     if (activeChildren.length > 0) {
+//       return `/category/${slugify(activeChildren[0].name)}`;
+//     }
+
+//     return `/category/${slugify(cat.name)}`;
+//   };
+
+//   return (
+//     <>
+//       {/* 🔹 FIXED HEADER */}
+//       <header className="fixed top-0 left-0 w-full bg-white border-b z-50">
+        
+//         {/* 🔹 TOP ROW */}
+//         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-center relative">
+          
+//           {/* LOGO */}
+//           <Link href="/" className="text-4xl font-bold tracking-wide">
+//             Mr. Ciggy
+//           </Link>
+
+//           {/* ICONS */}
+//           <div className="absolute right-6 flex items-center gap-5">
+//             <Search size={20} />
+//             <User size={20} />
+
+//             <button onClick={openDrawer} className="relative">
+//               <ShoppingCart size={22} />
+//               {cart.length > 0 && (
+//                 <span className="absolute -top-2 -right-2 bg-black text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center">
+//                   {cart.length}
+//                 </span>
+//               )}
+//             </button>
+//           </div>
+//         </div>
+
+//         {/* 🔹 MENU */}
+//         <div className="border-t">
+//           <nav className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-center gap-8 text-sm font-medium">
+//             {categories
+//               .filter(cat => cat.is_active)
+//               .map(cat => (
+//                 <Link
+//                   key={cat.id}
+//                   href={getCategoryLink(cat)}
+//                   className="text-gray-700 hover:text-black transition"
+//                 >
+//                   {cat.name}
+//                 </Link>
+//               ))}
+//           </nav>
+//         </div>
+//       </header>
+
+//       {/* 🔹 CART DRAWER */}
+//       <CartDrawer open={drawerOpen} onClose={closeDrawer} />
+
+//       {/* 🔹 OFFSET */}
+//       <div className="h-[136px]" />
+//     </>
+//   );
+// }
+
+
+
+// "use client";
+
+// import React, { useEffect, useState } from "react";
+// import Link from "next/link";
+// import { ShoppingCart } from "lucide-react";
+// import { useCart } from "@/context/CartContext";
+// import CartDrawer from "./CartDrawer";
+
+// type Category = {
+//   id: number;
+//   name: string;
+//   is_active: boolean;
+//   children_data?: Category[];
+// };
+
+// /* 🔹 SLUG FUNCTION */
+// const slugify = (text: string) =>
+//   text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+// export default function Header() {
+//   const { cart, drawerOpen, openDrawer, closeDrawer } = useCart();
+//   const [categories, setCategories] = useState<Category[]>([]);
+
 //   useEffect(() => {
 //     async function fetchCategories() {
 //       try {
 //         const res = await fetch("/api/fetchCategories");
 //         const data = await res.json();
-
-//         // ✅ correct response handling
-//         setCategories(
-//           data?.categories?.children_data?.filter((c: Category) => c.is_active) ||
-//             []
-//         );
+//         setCategories(data.children_data || []);
 //       } catch (err) {
-//         console.error("❌ Failed to fetch categories:", err);
+//         console.error("Failed to fetch categories:", err);
 //       }
 //     }
-
 //     fetchCategories();
 //   }, []);
 
-//   /* ================= CONFIG ================= */
-//   const MAX_VISIBLE = 8;
-//   const visibleCategories = categories.slice(0, MAX_VISIBLE);
-//   const extraCategories = categories.slice(MAX_VISIBLE);
-
-//   /* ================= DROPDOWN ================= */
+//   /* 🔹 MULTI LEVEL DROPDOWN (SAME LOGIC) */
 //   const renderDropdown = (children?: Category[]) => {
 //     if (!children || children.length === 0) return null;
 
 //     return (
-//       <ul className="absolute left-0 top-full hidden group-hover:block bg-white shadow-lg border rounded min-w-[220px] z-50">
+//       <ul className="absolute left-full top-0 hidden group-hover:block bg-white shadow-lg border rounded min-w-[180px] z-50">
 //         {children
-//           .filter((c) => c.is_active)
-//           .map((child) => (
-//             <li key={child.id} className="relative group">
+//           .filter(c => c.is_active)
+//           .map(child => (
+//             <li key={child.id} className="relative group" >
+
 //               <Link
 //                 href={`/category/${slugify(child.name)}`}
-//                 className="block px-4 py-2 hover:bg-gray-100 whitespace-nowrap"
+//                 className="block display- hide px-4 py-2 hover:bg-gray-100 whitespace-nowrap"
 //               >
 //                 {child.name}
 //               </Link>
@@ -211,68 +384,81 @@
 //     );
 //   };
 
-//   /* ================= RENDER ================= */
 //   return (
 //     <>
-//       <header className="bg-white shadow-md px-6 py-4 flex items-center justify-between">
-//         {/* 🔹 LEFT NAV */}
-//         <nav className="flex items-center gap-6">
-//           {visibleCategories.map((cat) => (
-//             <div key={cat.id} className="relative group">
-//               <Link
-//                 href={`/category/${slugify(cat.name)}`}
-//                 className="font-medium hover:text-blue-600 whitespace-nowrap"
-//               >
-//                 {cat.name}
-//               </Link>
+//       {/* 🔹 FIXED HEADER */}
+//       <header className="fixed top-0 left-0 w-full bg-white shadow-md z-50">
 
-//               {cat.children_data && renderDropdown(cat.children_data)}
-//             </div>
-//           ))}
+//         {/* 🔹 TOP ROW : LOGO CENTER */}
+//         <div className="h-20 flex items-center justify-center">
+//           <Link
+//             href="/"
+//             className="text-6xl font-bold"
+//           >
+//             Abc
+//           </Link>
+//         </div>
 
-//           {/* 🔹 MORE DROPDOWN */}
-//           {extraCategories.length > 0 && (
-//             <div className="relative group">
-//               <span className="font-medium cursor-pointer hover:text-blue-600">
-//                 More
-//               </span>
+//         {/* 🔹 MENU ROW + CART RIGHT */}
+//         <div className="border-t">
+//           <div className="max-w-7xl mx-auto px-6 h-14 flex items-center">
 
-//               <ul className="absolute left-0 top-full hidden group-hover:block bg-white shadow-lg border rounded min-w-[220px] z-50">
-//                 {extraCategories.map((cat) => (
-//                   <li key={cat.id}>
+//             {/* MENU CENTER */}
+//             <nav className="flex-1 flex justify-center space-x-6">
+//               {categories
+//                 .filter(cat => cat.is_active)
+//                 .map(cat => (
+//                   <div key={cat.id} className="relative group">
 //                     <Link
 //                       href={`/category/${slugify(cat.name)}`}
-//                       className="block px-4 py-2 hover:bg-gray-100 whitespace-nowrap"
+//                       className="font-medium hover:text-blue-600"
 //                     >
 //                       {cat.name}
 //                     </Link>
-//                   </li>
+
+//                     {cat.children_data && cat.children_data.length > 0 && (
+//                       <ul className="absolute left-0 top-full hidden group-hover:block bg-white shadow-lg border rounded min-w-[180px] z-50">
+//                         {cat.children_data
+//                           .filter(c => c.is_active)
+//                           .map(child => (
+//                             <li key={child.id} className="relative group">
+//                               <Link
+//                                 href={`/category/${slugify(child.name)}`}
+//                                 className="block px-4 py-2 hover:bg-gray-100 whitespace-nowrap"
+//                               >
+//                                 {child.name}
+//                               </Link>
+
+//                               {child.children_data &&
+//                                 renderDropdown(child.children_data)}
+//                             </li>
+//                           ))}
+//                       </ul>
+//                     )}
+//                   </div>
 //                 ))}
-//               </ul>
-//             </div>
-//           )}
-//         </nav>
+//             </nav>
 
-//         {/* 🔹 LOGO (CENTER, NO ABSOLUTE) */}
-//         <Link href="/" className="text-3xl font-bold whitespace-nowrap">
-//           Reveredtech
-//         </Link>
+//             {/* CART RIGHT */}
+//             <button onClick={openDrawer} className="relative ml-6">
+//               <ShoppingCart size={24} />
+//               {cart.length > 0 && (
+//                 <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+//                   {cart.length}
+//                 </span>
+//               )}
+//             </button>
 
-//         {/* 🔹 CART */}
-//         <button onClick={openDrawer} className="relative">
-//           <ShoppingCart size={24} />
-//           {cart.length > 0 && (
-//             <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
-//               {cart.length}
-//             </span>
-//           )}
-//         </button>
+//           </div>
+//         </div>
 //       </header>
 
 //       {/* 🔹 CART DRAWER */}
 //       <CartDrawer open={drawerOpen} onClose={closeDrawer} />
 
-//       {/* 🔹 DROPDOWN FIX */}
+//       {/* 🔹 PAGE OFFSET */}
+//       <div className="h-[136px]" />
+
 //       <style jsx>{`
 //         li.group:hover > ul {
 //           display: block;
@@ -283,9 +469,6 @@
 // }
 
 
-
-
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -294,7 +477,6 @@ import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import CartDrawer from "./CartDrawer";
 
-/* ================= TYPES ================= */
 type Category = {
   id: number;
   name: string;
@@ -302,151 +484,175 @@ type Category = {
   children_data?: Category[];
 };
 
-/* ================= SLUG ================= */
+/* 🔹 SLUG FUNCTION */
 const slugify = (text: string) =>
-  text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+  text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-/* ================= COMPONENT ================= */
 export default function Header() {
   const { cart, drawerOpen, openDrawer, closeDrawer } = useCart();
   const [categories, setCategories] = useState<Category[]>([]);
 
-  /* ================= FETCH CATEGORIES ================= */
   useEffect(() => {
     async function fetchCategories() {
       try {
         const res = await fetch("/api/fetchCategories");
         const data = await res.json();
-
-        setCategories(
-          data?.categories?.children_data?.filter(
-            (c: Category) => c.is_active
-          ) || []
-        );
+        setCategories(data.children_data || []);
       } catch (err) {
-        console.error("❌ Category fetch failed:", err);
+        console.error("Failed to fetch categories:", err);
       }
     }
-
     fetchCategories();
   }, []);
 
-  /* ================= CONFIG ================= */
-  const MAX_VISIBLE = 8;
-  const visibleCategories = categories.slice(0, MAX_VISIBLE);
-  const extraCategories = categories.slice(MAX_VISIBLE);
-
-  /* ================= MEGA MENU ================= */
-  const renderMegaMenu = (children?: Category[]) => {
+  /* 🔹 MULTI LEVEL DROPDOWN (LOGIC SAME) */
+  const renderDropdown = (children?: Category[]) => {
     if (!children || children.length === 0) return null;
 
     return (
-      <div className="absolute left-0 top-full w-screen bg-[#d9d6dd] shadow-xl z-50 hidden group-hover:block">
-        <div className="max-w-7xl mx-auto px-8 py-6">
-          <div className="grid grid-cols-4 gap-10">
-            {children
-              .filter((c) => c.is_active)
-              .map((sub) => (
-                <div key={sub.id}>
-                  {/* Sub Category */}
-                  <Link
-                    href={`/category/${slugify(sub.name)}`}
-                    className="font-semibold mb-3 block hover:underline"
-                  >
-                    {sub.name}
-                  </Link>
+      <ul className="absolute left-full top-0 hidden group-hover:block bg-white shadow-lg border rounded min-w-[180px] z-50">
+        {children
+          .filter(c => c.is_active)
+          .map(child => (
+            <li key={child.id} className="relative group">
+              <Link
+                href={`/category/${slugify(child.name)}`}
+                className="block px-4 py-2 hover:bg-gray-100 whitespace-nowrap"
+              >
+                {child.name}
+              </Link>
 
-                  {/* Sub Sub Categories */}
-                  <ul className="space-y-1 text-sm">
-                    {sub.children_data
-                      ?.filter((c) => c.is_active)
-                      .map((child) => (
-                        <li key={child.id}>
-                          <Link
-                            href={`/category/${slugify(child.name)}`}
-                            className="hover:underline block"
-                          >
-                            {child.name}
-                          </Link>
-                        </li>
-                      ))}
-
-                    <li className="mt-2 font-semibold cursor-pointer">
-                      Shop All
-                    </li>
-                  </ul>
-                </div>
-              ))}
-          </div>
-        </div>
-      </div>
+              {child.children_data && renderDropdown(child.children_data)}
+            </li>
+          ))}
+      </ul>
     );
   };
 
-  /* ================= RENDER ================= */
   return (
     <>
-      <header className="bg-white shadow-md px-6 py-4 flex items-center justify-between relative z-50">
-        {/* 🔹 LEFT NAV */}
-        <nav className="flex items-center gap-6">
-          {visibleCategories.map((cat) => (
-            <div key={cat.id} className="relative group">
-              <Link
-                href={`/category/${slugify(cat.name)}`}
-                className="font-medium hover:text-blue-600 whitespace-nowrap"
-              >
-                {cat.name}
-              </Link>
+      {/* 🔹 FIXED HEADER */}
+      <header className="fixed top-0 left-0 w-full bg-white shadow-md z-50">
 
-              {/* 🔥 MEGA MENU */}
-              {cat.children_data && renderMegaMenu(cat.children_data)}
-            </div>
-          ))}
+        {/* 🔹 LOGO TOP CENTER */}
+        <div className="h-20 flex items-center justify-center">
+          <Link href="/" className="text-4xl font-bold">
+            Reveredtech
+          </Link>
+        </div>
 
-          {/* 🔹 MORE DROPDOWN */}
-          {extraCategories.length > 0 && (
-            <div className="relative group">
-              <span className="font-medium cursor-pointer hover:text-blue-600">
-                More
-              </span>
+        {/* 🔹 MENU + CART */}
+        <div className="border-t">
+          <div className="max-w-7xl mx-auto px-6 h-14 flex items-center">
 
-              <ul className="absolute left-0 top-full hidden group-hover:block bg-white shadow-lg border rounded min-w-[220px] z-50">
-                {extraCategories.map((cat) => (
-                  <li key={cat.id}>
+            {/* MENU CENTER */}
+            <nav className="flex-1 flex justify-center space-x-6">
+              {categories
+                .filter(cat => cat.is_active)
+                .map(cat => (
+                  <div key={cat.id} className="relative group">
                     <Link
                       href={`/category/${slugify(cat.name)}`}
-                      className="block px-4 py-2 hover:bg-gray-100 whitespace-nowrap"
+                      className="font-medium hover:text-blue-600"
                     >
                       {cat.name}
                     </Link>
-                  </li>
+
+                    {/* 🔹 SUB-CATEGORIES (DATA AAYEGA, FRONTEND PAR NAHI DIKHEGA) */}
+                    {cat.children_data && cat.children_data.length > 0 && (
+                      <ul className="absolute left-0 top-full hidden group-hover:block bg-white shadow-lg border rounded min-w-[180px] z-50">
+                        {cat.children_data
+                          .filter(c => c.is_active)
+                          .map(child => (
+                            <li key={child.id} className="relative group">
+                              <Link
+                                href={`/category/${slugify(child.name)}`}
+                                className="block px-4 py-2 hover:bg-gray-100 whitespace-nowrap"
+                              >
+                                {child.name}
+                              </Link>
+
+                              {child.children_data &&
+                                renderDropdown(child.children_data)}
+                            </li>
+                          ))}
+                      </ul>
+                    )}
+                  </div>
                 ))}
-              </ul>
-            </div>
-          )}
-        </nav>
+            </nav>
 
-        {/* 🔹 LOGO */}
-        <Link href="/" className="text-3xl font-bold whitespace-nowrap">
-          Reveredtech
-        </Link>
+            {/* CART RIGHT */}
+            <button onClick={openDrawer} className="relative ml-6">
+              <ShoppingCart size={24} />
+              {cart.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                  {cart.length}
+                </span>
+              )}
+            </button>
 
-        {/* 🔹 CART */}
-        <button onClick={openDrawer} className="relative">
-          <ShoppingCart size={24} />
-          {cart.length > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
-              {cart.length}
-            </span>
-          )}
-        </button>
+          </div>
+        </div>
       </header>
 
       {/* 🔹 CART DRAWER */}
       <CartDrawer open={drawerOpen} onClose={closeDrawer} />
+
+      {/* 🔹 PAGE OFFSET */}
+      <div className="h-[136px]" />
+
+      {/* 🔹 ONLY CSS CHANGE (FRONTEND HIDE SUB-CATEGORIES) */}
+      <style jsx>{`
+        /* sub-categories ko frontend par hamesha hide rakho */
+        nav .group > ul {
+          display: none !important;
+        }
+      `}</style>
     </>
   );
 }
+
+
+// "use client";
+// import { useEffect, useState } from "react";
+
+// export default function Header() {
+//   const [categories, setCategories] = useState<any[]>([]);
+
+//   // 🔹 Header load hote hi categories lao
+//   useEffect(() => {
+//     fetch("/api/categories")
+//       .then(res => res.json())
+//       .then(data => {
+//         setCategories(data.children_data || []);
+//         console.log("🟢 Header Categories:", data.children_data);
+//       });
+//   }, []);
+
+//   // 🔥 Category click → products console
+//   const handleCategoryClick = async (categoryId: number) => {
+//     console.log("🟡 Clicked Category ID:", categoryId);
+
+//     const res = await fetch(`/api/products?id=${categoryId}`);
+//     const products = await res.json();
+
+//     console.log("🟢 Products of clicked category:", products);
+//   };
+
+//   return (
+//     <header>
+//       <nav style={{ display: "flex", gap: "15px" }}>
+//         {categories.map(cat => (
+//           <span
+//             key={cat.id}
+//             style={{ cursor: "pointer" }}
+//             onClick={() => handleCategoryClick(cat.id)}
+//           >
+//             {cat.name}
+//           </span>
+//         ))}
+//       </nav>
+//     </header>
+//   );
+// }

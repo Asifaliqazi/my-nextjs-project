@@ -7,33 +7,33 @@ import { useRef } from "react";
 const products = [
   {
     id: 1,
-    title: "Havaianas Baby Brazil Logo Sandals",
-    price: "$17.60",
-    image: "/c.png",
+    title: "PrimeTime Plus VanillaPrimeTime Plus Vanilla Flavoured Smokes",
+    price: "$65",
+    image: "/a.png",
   },
   {
     id: 2,
-    title: "Havaianas Slim Glitter II",
-    price: "$30.40",
-    image: "/b.png",
+    title: "PrimeTime Plus Grape Flavoured Cigars",
+    price: "$50",
+    image: "/bc.png",
   },
   {
     id: 3,
-    title: "Havaianas Slim Animals Print",
-    price: "$34.00",
-    image: "/c.png",
+    title: "PrimeTime Plus VanillaPrimeTime Plus Vanilla Flavoured Smokes",
+    price: "$65",
+    image: "/a.png",
   },
   {
     id: 4,
-    title: "Havaianas Slim Square Logo Metallic",
-    price: "$30.40",
-    image: "/b.png",
+    title: "PrimeTime Plus Grape Flavoured Cigars",
+    price: "$50",
+    image: "/bc.png",
   },
   {
     id: 5,
-    title: "Havaianas Slim Logo Sandals",
-    price: "$28.00",
-    image: "/c.png",
+    title: "PrimeTime Plus VanillaPrimeTime Plus Vanilla Flavoured Smokes",
+    price: "$65",
+    image: "/a.png",
   },
 ];
 
@@ -72,7 +72,7 @@ export default function NewCollection() {
   return (
     <div className="max-w-7xl mx-auto px-4 mt-16">
       <h2 className="text-3xl font-bold text-center mb-10">
-        New Collection
+        All Products
       </h2>
 
       <div className="relative overflow-hidden">
