@@ -1113,6 +1113,8 @@
 import { Suspense } from "react";
 import ProductClient from "./ProductClient";
 
+export const dynamic = "force-dynamic";
+
 export default function ProductPage() {
   return (
     <div className="p-4 max-w-5xl mx-auto">
@@ -1124,6 +1126,8 @@ export default function ProductPage() {
     </div>
   );
 }
+
+
 
 
 
