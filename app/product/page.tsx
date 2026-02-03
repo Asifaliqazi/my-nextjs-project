@@ -1129,21 +1129,16 @@
 // }
 
 
-"use client";
-
-import dynamic from "next/dynamic";
-
-const ProductDetailPage = dynamic(() => import("./ProductClient"), {
-  ssr: false,
-});
+import ProductClient from "./ProductClient";
 
 export default function ProductPage() {
   return (
     <div>
-      <ProductDetailPage />
+      <ProductClient />
     </div>
   );
 }
+
 
 
 
