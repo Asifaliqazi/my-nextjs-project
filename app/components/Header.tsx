@@ -789,7 +789,7 @@ export default function Header() {
           >
             Reveredtech
           </Link>
-
+ 
           {/* RIGHT ICONS (MOBILE) */}
           <div className="flex items-center gap-4 md:hidden">
             {/* CART */}
