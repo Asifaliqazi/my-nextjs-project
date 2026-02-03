@@ -785,7 +785,7 @@ export default function Header() {
           {/* LOGO */}
           <Link
             href="/"
-            className="text-xl font-bold md:absolute md:left-1/2 md:-translate-x-1/2"
+            className="text-4xl font-bold md:absolute md:left-1/2 md:-translate-x-1/2"
           >
             Reveredtech
           </Link>
