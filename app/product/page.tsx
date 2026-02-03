@@ -1131,14 +1131,17 @@
 
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
+import { unstable_noStore as noStore } from "next/cache";
 
 const ProductClient = dynamic(() => import("./ProductClient"), {
   ssr: false,
 });
 
 export default function ProductPage() {
+  noStore(); // 🔥 STATIC PRERENDER ROKTA HAI
+
   return (
-    <Suspense fallback={<div>Loading product...</div>}>
+    <Suspense fallback={<div className="p-4">Loading product...</div>}>
       <ProductClient />
     </Suspense>
   );
