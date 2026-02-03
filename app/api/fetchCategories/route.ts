@@ -211,8 +211,6 @@ export async function GET() {
 
     const filteredData = filterCategories(data);
 
-    console.log("🟢 [Server] Filtered categories response:", filteredData);
-
     return NextResponse.json(filteredData);
   } catch (err) {
     console.error("❌ fetchCategories failed:", err);
