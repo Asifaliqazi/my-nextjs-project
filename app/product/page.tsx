@@ -1129,15 +1129,21 @@
 // }
 
 
-import ProductClient from "./ProductClient";
+import dynamic from "next/dynamic";
+import { Suspense } from "react";
+
+const ProductClient = dynamic(() => import("./ProductClient"), {
+  ssr: false,
+});
 
 export default function ProductPage() {
   return (
-    <div>
+    <Suspense fallback={<div>Loading product...</div>}>
       <ProductClient />
-    </div>
+    </Suspense>
   );
 }
+
 
 
 
