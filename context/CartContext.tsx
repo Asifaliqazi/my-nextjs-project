@@ -3122,7 +3122,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
 
     await refreshCart();
-    setTimeout(() => openDrawer(), 0);
   };
 
   /* ---------- REMOVE ITEM ---------- */
