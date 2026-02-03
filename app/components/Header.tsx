@@ -821,7 +821,7 @@ export default function Header() {
                     href={`/category/${slugify(cat.name)}`}
                     className="font-medium hover:text-blue-600"
                   >
-                    {cat.name}
+                    {cat.name} 
                   </Link>
                 ))}
             </nav>
