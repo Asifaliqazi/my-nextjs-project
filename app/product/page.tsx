@@ -1128,6 +1128,8 @@
 //   );
 // }
 
+// app/product/page.tsx
+"use client";
 
 import dynamic from "next/dynamic";
 import { unstable_noStore as noStore } from "next/cache";
@@ -1141,6 +1143,7 @@ export default function ProductPage() {
 
   return <ProductClient />;
 }
+
 
 
 
