@@ -1129,6 +1129,8 @@
 // }
 
 
+"use client";
+
 import dynamic from "next/dynamic";
 
 const ProductDetailPage = dynamic(() => import("./ProductClient"), {
@@ -1142,6 +1144,7 @@ export default function ProductPage() {
     </div>
   );
 }
+
 
 
 
