@@ -1110,21 +1110,36 @@
 //   );
 // }
 
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 
-import { Suspense } from "react";
-import dynamicImport from "next/dynamic"; // ✅ name change
+// import { Suspense } from "react";
+// import dynamicImport from "next/dynamic"; // ✅ name change
 
-const ProductDetailPage = dynamicImport(
-  () => import("./ProductClient"),
-  { ssr: false } // 🔥 MOST IMPORTANT
-);
+// const ProductDetailPage = dynamicImport(
+//   () => import("./ProductClient"),
+//   { ssr: false } // 🔥 MOST IMPORTANT
+// );
+
+// export default function ProductPage() {
+//   return (
+//     <Suspense fallback={<p className="p-4">Loading product...</p>}>
+//       <ProductDetailPage />
+//     </Suspense>
+//   );
+// }
+
+
+import dynamic from "next/dynamic";
+
+const ProductDetailPage = dynamic(() => import("./ProductClient"), {
+  ssr: false,
+});
 
 export default function ProductPage() {
   return (
-    <Suspense fallback={<p className="p-4">Loading product...</p>}>
+    <div>
       <ProductDetailPage />
-    </Suspense>
+    </div>
   );
 }
 
