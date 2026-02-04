@@ -411,8 +411,129 @@
 // }
 
 
+// import { NextResponse } from "next/server";
+// import { getMagentoToken, clearMagentoToken } from "@/lib/magentoToken";
+
+// export async function GET(req: Request) {
+//   try {
+//     const { searchParams } = new URL(req.url);
+//     const sku = searchParams.get("sku");
+
+//     if (!sku) {
+//       return NextResponse.json({ error: "SKU missing" }, { status: 400 });
+//     }
+
+//     let token = await getMagentoToken();
+
+//     // 🔹 PRODUCT FETCH
+//     let res = await fetch(
+//       `${process.env.NEXT_PUBLIC_MAGENTO_URL}/rest/V1/products/${sku}`,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           "Content-Type": "application/json",
+//         },
+//         cache: "no-store",
+//       }
+//     );
+
+//     // 🔁 Token expired
+//     if (res.status === 401) {
+//       clearMagentoToken();
+//       token = await getMagentoToken();
+//       res = await fetch(
+//         `${process.env.NEXT_PUBLIC_MAGENTO_URL}/rest/V1/products/${sku}`,
+//         {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//             "Content-Type": "application/json",
+//           },
+//           cache: "no-store",
+//         }
+//       );
+//     }
+
+//     if (!res.ok) {
+//       const errText = await res.text();
+//       return NextResponse.json(
+//         { error: "Product not found", details: errText },
+//         { status: res.status }
+//       );
+//     }
+
+//     const product = await res.json();
+
+//     // 🔹 STOCK MERGE
+//     const stockItem = product.extension_attributes?.stock_item;
+//     const responseData = {
+//       ...product, // pura original product JSON
+//       stock: stockItem?.qty || 0,
+//       is_in_stock: stockItem?.is_in_stock || false,
+//     };
+
+//     return NextResponse.json(responseData);
+//   } catch (error) {
+//     console.error("💥 API ERROR:", error);
+//     return NextResponse.json({ error: "Server error" }, { status: 500 });
+//   }
+// }
+
+
 import { NextResponse } from "next/server";
+import { unstable_cache } from "next/cache";
 import { getMagentoToken, clearMagentoToken } from "@/lib/magentoToken";
+
+const getCachedProductBySku = (sku: string) =>
+  unstable_cache(
+    async () => {
+      let token = await getMagentoToken();
+
+      let res = await fetch(
+        `${process.env.NEXT_PUBLIC_MAGENTO_URL}/rest/V1/products/${sku}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // 🔁 Token expired
+      if (res.status === 401) {
+        clearMagentoToken();
+        token = await getMagentoToken();
+        res = await fetch(
+          `${process.env.NEXT_PUBLIC_MAGENTO_URL}/rest/V1/products/${sku}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
+
+      if (!res.ok) {
+        throw new Error("Product not found");
+      }
+
+      const product = await res.json();
+
+      // 🔹 STOCK MERGE
+      const stockItem = product.extension_attributes?.stock_item;
+
+      return {
+        ...product,
+        stock: stockItem?.qty || 0,
+        is_in_stock: stockItem?.is_in_stock || false,
+      };
+    },
+    [`product-${sku}`], // 👈 SKU-wise cache
+    {
+      tags: ["products"], // 👈 revalidateTag("products")
+      revalidate: 300,    // 5 minutes
+    }
+  )();
 
 export async function GET(req: Request) {
   try {
@@ -423,62 +544,13 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "SKU missing" }, { status: 400 });
     }
 
-    let token = await getMagentoToken();
-
-    // 🔹 PRODUCT FETCH
-    let res = await fetch(
-      `${process.env.NEXT_PUBLIC_MAGENTO_URL}/rest/V1/products/${sku}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        cache: "no-store",
-      }
-    );
-
-    // 🔁 Token expired
-    if (res.status === 401) {
-      clearMagentoToken();
-      token = await getMagentoToken();
-      res = await fetch(
-        `${process.env.NEXT_PUBLIC_MAGENTO_URL}/rest/V1/products/${sku}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          cache: "no-store",
-        }
-      );
-    }
-
-    if (!res.ok) {
-      const errText = await res.text();
-      return NextResponse.json(
-        { error: "Product not found", details: errText },
-        { status: res.status }
-      );
-    }
-
-    const product = await res.json();
-
-    // 🔹 STOCK MERGE
-    const stockItem = product.extension_attributes?.stock_item;
-    const responseData = {
-      ...product, // pura original product JSON
-      stock: stockItem?.qty || 0,
-      is_in_stock: stockItem?.is_in_stock || false,
-    };
-
-    return NextResponse.json(responseData);
+    const data = await getCachedProductBySku(sku);
+    return NextResponse.json(data);
   } catch (error) {
     console.error("💥 API ERROR:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
-
-
 
 
 
