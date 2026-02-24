@@ -12,7 +12,7 @@ export default function Footer() {
             Reveredtech
           </h3>
           <p className="text-sm text-gray-400">
-            Quality products for Men, Women, Kids & Baby.
+            
           </p>
         </div>
 
