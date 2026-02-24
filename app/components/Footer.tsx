@@ -20,10 +20,10 @@ export default function Footer() {
         <div>
           <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
           <ul className="space-y-2 text-sm text-gray-300">
-            <li><Link href="/category/mens">Mens</Link></li>
-            <li><Link href="/category/womens">Womens</Link></li>
-            <li><Link href="/category/kids">Kids</Link></li>
-            <li><Link href="/category/baby">Baby</Link></li>
+            <li><Link href="/category/flavoured">Flavoured</Link></li>
+            <li><Link href="/category/menthol">Menthol</Link></li>
+            <li><Link href="/category/light">Light</Link></li>
+            <li><Link href="/category/full-flavour">Full-Flavour</Link></li>
           </ul>
         </div>
 
