@@ -11,10 +11,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="flex flex-col min-h-screen">
         <CartProvider>
           <Header /> {/* Header hamesha visible */}
-          <main>{children}</main> {/* CategoryPage, ProductPage, etc */}
+          <main className="flex-1 min-h-[400px]">{children}</main> {/* CategoryPage, ProductPage, etc */}
           <Footer /> {/* Footer hamesha visible */}
         </CartProvider>
       </body>
